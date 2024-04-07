@@ -46,18 +46,18 @@ def create_df_loc_cust(id_path, dist_path, txt_path):
     # Merge with identifiers DataFrame
     df_locations = df_locations.merge(identifiers_df, left_on='location', right_on='id').drop('id', axis=1)
 
-    df_customers = pd.DataFrame(customer_assignments, columns=['customer', 'demand', 'location', 'assigned_demand'])
-    # Merge df_customers with identifiers_df for customer
-    df_customers = df_customers.merge(identifiers_df, how='left', left_on='customer', right_on='id').drop('id', axis=1)
-    df_customers.rename(columns={'identif': 'identif_cust'}, inplace=True)
+    df_assignment = pd.DataFrame(customer_assignments, columns=['customer', 'demand', 'location', 'assigned_demand'])
+    # Merge df_assignment with identifiers_df for customer
+    df_assignment = df_assignment.merge(identifiers_df, how='left', left_on='customer', right_on='id').drop('id', axis=1)
+    df_assignment.rename(columns={'identif': 'identif_cust'}, inplace=True)
 
-    # Merge df_customers with identifiers_df for location
-    df_customers = df_customers.merge(identifiers_df, how='left', left_on='location', right_on='id').drop('id', axis=1)
-    df_customers.rename(columns={'identif': 'identif_loc'}, inplace=True)
-
-
-    # Merge df_customers with distance_df
-    df_customers = df_customers.merge(df_distance, how='left', on=['customer', 'location'])
+    # Merge df_assignment with identifiers_df for location
+    df_assignment = df_assignment.merge(identifiers_df, how='left', left_on='location', right_on='id').drop('id', axis=1)
+    df_assignment.rename(columns={'identif': 'identif_loc'}, inplace=True)
 
 
-    return df_locations, df_customers
+    # Merge df_assignment with distance_df
+    df_assignment = df_assignment.merge(df_distance, how='left', on=['customer', 'location'])
+
+
+    return df_locations, df_assignment
