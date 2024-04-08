@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from create_df import create_df_loc_cust
 from graphics_sol import create_plot_Evolution_Sol
@@ -13,8 +14,8 @@ def create_table_statistics(services,pvalues,coverages,methods):
     
     for method in methods:
         for serv in services:
-            for pvalue in pvalues:
-                for cover in coverages:
+            for cover in coverages:
+                for pvalue in pvalues:
                     id_path = f'./tables/tables_id/map_id_cust_loc.txt'
                     dist_path = f'./tables/tables_dist/dist_matrix_minutes.txt'
                     txt_path = f'./tables/tables_assign/test_paca_{serv}_{cover}_p_{pvalue}_{method}.txt'    
@@ -42,17 +43,79 @@ def create_table_statistics(services,pvalues,coverages,methods):
                     
                     df_test_coverages.loc[len(df_test_coverages)] = [serv,pvalue,cover,method, num_unique_subareas,num_total_subareas]
     
-            print(df_stats)
-            print(df_test_coverages)
+        df_stats.to_csv(f'df_stats_{method}.csv', index=False, mode='a')
+        df_test_coverages.to_csv(f'df_count_coverages_{method}.csv', index=False, mode='a')
+
+
+def plot_coverages():
+    # Data
+    # data = {
+    #     'p_values': [26, 30, 33, 37, 41, 44, 48],
+    #     'Exact_Arrond': [13, 13, 13, 15, 15, 15, 15],
+    #     'RSSV_Exact_Arrond': [12, 13, 13, 15, 15, 16, 16],
+    #     'Exact_EPCI': [13, 15, 14, 18, 15, 19, 20],
+    #     'RSSV_Exact_EPCI': [13, 15, 15, 19, 20, 22, 25]
+    # }
+
+    data = {
+        'p_values': [42, 48, 54, 60, 66, 72, 78],
+        'Exact_Arrond':  [15, 16, 15, 16, 17, 16, 17],
+        'RSSV_Exact_Arrond': [16, 16, 16, 17, 18, 18, 17],
+        'Exact_EPCI': [20, 23, 27, 27, 30, 31, 32],
+        'RSSV_Exact_EPCI': [21, 24, 26, 28, 32, 33, 35]
+    }
+
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+
+    # Plotting bars
+    plt.bar(data['p_values'], data['Exact_Arrond'], width=0.7, align='center', label='Exact', color='red')
+    plt.bar([p + 0.7 for p in data['p_values']], data['RSSV_Exact_Arrond'], width=0.7, align='center', label='RSSV_Exact', color='blue')
+    # plt.title('Comparison of Methods with for Maternity and subareas Arrond.')
+    plt.title('Comparison of Methods with for Urgency and subareas Arrond.')
+
+
+    # plt.bar(data['p_values'], data['Exact_EPCI'], width=0.7, align='center', label='Exact', color='red')
+    # plt.bar([p + 0.7 for p in data['p_values']], data['RSSV_Exact_EPCI'], width=0.7, align='center', label='RSSV_Exact', color='blue')
+    # # plt.title('Comparison of Methods for Maternity  with subareas EPCI')
+    # plt.title('Comparison of Methods with for Urgency and subareas EPCI')
+
+
+    # Adding labels and title
+    plt.xlabel('p values')
+    plt.ylabel('Number of covered subareas')
+    plt.yticks([int(i) for i in plt.yticks()[0]])
+    plt.xticks([p + 0.45 for p in data['p_values']], data['p_values'])
+    plt.legend()
+    plt.legend(loc='upper left')
+
+    #save plot
+    # plt.savefig('coverages_mat_arrond.pdf')
+    # plt.savefig('coverages_mat_epci.pdf')
+    plt.savefig('coverages_urgenc_arrond.pdf')
+    # plt.savefig('coverages_urgenc_epci.pdf')
+    # Show plot
+    #plt.tight_layout()
+    # plt.show()
+
 
 
 def main():
     print("Main function")
     
+
+    # plot_coverages()
+
+
     # services=['mat']
-    # pvalues=[26,33]
+    # pvalues=[26,30,33,37,41,44,48]
+    
+    # services=['urgenc']
+    # pvalues=[42,48,54,60,66,72,78]
+
     # coverages=['null']
-    # methods=['EXACT_CPMP']
+    # methods=['RSSV_EXACT_CPMP']
 
     # create_table_statistics(services,pvalues,coverages,methods)
 
@@ -61,15 +124,16 @@ def main():
 
 
     # Create plot fo x time
-    # p=26
-    # path_table = f'./tables_evolution_sol/report_mat_p_{p}.csv'
-    # cover = 'null'
+    # p=78
+    # service='urgenc'
+    # path_table = f'./tables/tables_evolution_sol/report_{service}_p_{p}.csv'
+    # cover = 'arrond'
     # create_plot_Evolution_Sol(path_table, p, cover)
 
     # Create comparative plot
     path_data = './tables/tables_sol/'
     vet_p = [26]
-    cover = 'null'
+    cover = ['arrond', 'epci']
     create_comparative_Sol(path_data, vet_p, cover)
 
 

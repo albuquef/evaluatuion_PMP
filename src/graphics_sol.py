@@ -11,23 +11,23 @@ def create_comparative_Sol(path_data, vet_p, cover):
     df_results=df_results.sort_values(by='P').reset_index(drop=True)
     df_results_cover=df_results_cover.sort_values(by='P').reset_index(drop=True)
 
-    for serv in ['mat', 'urgenc']:
-        for suba in ["null"]: #['arrond', 'epci']:
+    for serv in ['urgenc']:#['mat', 'urgenc']:
+        for suba in cover: #['arrond', 'epci']:
             # p_values=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == suba)].P
             p_values=df_results[(df_results.SERVICE == serv) & (df_results.METHOD == 'exact')].P
             # print(p_values)
             sol_exact=df_results[(df_results.SERVICE == serv) & (df_results.METHOD == 'exact') & (df_results.P.isin(p_values))].SOLUTION
             sol_rssv_exact=df_results[(df_results.SERVICE == serv) & (df_results.METHOD == 'rssv_exact') & (df_results.P.isin(p_values))].SOLUTION
-            # sol_exact_cover=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == suba)].SOLUTION
-            # sol_rssv_exact_cover=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'rssv_exact') & (df_results_cover.SUBAREA == suba)].SOLUTION
+            sol_exact_cover=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == suba)].SOLUTION
+            sol_rssv_exact_cover=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'rssv_exact') & (df_results_cover.SUBAREA == suba)].SOLUTION
 
 
             # Plot points and line with the same color
-            # plt.plot(p_values, sol_exact, color='red', marker='o', ls='--', label='Exact')
-            # plt.plot(p_values, sol_rssv_exact, color='blue', marker='o', ls='--', label='RSSV-Exact')
+            # plt.plot(p_values, sol_exact, color='red', marker='o', ls='-', label='Exact')
+            # plt.plot(p_values, sol_rssv_exact, color='blue', marker='o', ls='-', label='RSSV-Exact')
 
-            plt.plot(p_values, sol_exact, color='red', marker='o', linestyle='-', label='Exact_cover')
-            plt.plot(p_values, sol_rssv_exact, color='blue', marker='o', linestyle='-', label='RSSV-Exact_cover')
+            plt.plot(p_values, sol_exact_cover, color='red', marker='o', linestyle='-', label=f'Exact_{suba}')
+            plt.plot(p_values, sol_rssv_exact_cover, color='blue', marker='o', linestyle='-', label=f'RSSV-Exact_{suba}')
 
             # Add labels and title
             plt.xlabel('Values of p')
@@ -56,7 +56,7 @@ def create_plot_Evolution_Sol(path_table, p, cover):
     # df.plot(x='time_exact', y='sol_exact', kind='line')
     # plt.plot(df.exact_time, df.exact_sol, color='red', label='Exact',linestyle="--")
     plt.plot(df.exact_TL_time, df.exact_TL_sol, color='red', label='Exact')
-    plt.plot(df.rssv_tbPMP_exact_time+600, df.rssv_tbPMP_exact_sol, color='blue', label='RSSV-exact')
+    plt.plot(df.rssv_tbPMP_exact_time+300, df.rssv_tbPMP_exact_sol, color='blue', label='RSSV-exact')
     # plt.plot(df.rssv_tbPMP_exact_vns_time, df.rssv_tbPMP_exact_vns_sol, color='green', label='RSSV-exact-vns')
 
 
@@ -66,13 +66,13 @@ def create_plot_Evolution_Sol(path_table, p, cover):
     plt.legend()
 
     # Add a title
-    if (cover!= "null"): plt.title(f'Maternity p = {p} cover {cover}')
-    else: plt.title(f'Maternity p = {p}')
+    if (cover!= "null"): plt.title(f'Urgency p = {p} cover {cover}')
+    else: plt.title(f'Urgency p = {p}')
 
 
     # Save the plot as a PDF file
     if (cover!= "null"): plt.savefig(f'plots/maternity_ESplot_p_{p}_{cover}.pdf')
-    else : plt.savefig(f'plots/maternity_ESplot_p_{p}.pdf')
+    else : plt.savefig(f'plots/urgency_ESplot_p_{p}.pdf')
 
 
     # Show the plot (optional)
