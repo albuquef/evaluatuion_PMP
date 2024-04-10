@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from create_df import create_df_loc_cust
 from graphics_sol import create_plot_Evolution_Sol
-from graphics_sol import create_comparative_Sol
+from graphics_sol import create_comparative_Sol, create_plot_comparative_Sol_covers
 
 def create_table_statistics(services,pvalues,coverages,methods):
     
@@ -135,6 +135,7 @@ def main():
     vet_p = [26]
     cover = ['arrond', 'epci']
     create_comparative_Sol(path_data, vet_p, cover)
+    create_plot_comparative_Sol_covers(path_data, vet_p, cover)
 
 
 

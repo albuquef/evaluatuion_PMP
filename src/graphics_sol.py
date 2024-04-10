@@ -4,6 +4,40 @@ import pandas as pd
 # import numpy as np
 
 
+def create_plot_comparative_Sol_covers(path_data, vet_p, cover):
+
+    df_results_cover=pd.read_csv(path_data+'table_cpmp_cover.csv')
+    df_results_cover=df_results_cover.sort_values(by='P').reset_index(drop=True)
+
+    for serv in ['mat', 'urgenc']:
+        #for suba in cover: #['arrond', 'epci']:
+        
+        p_values=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == cover[0])].P
+        sol_exact_cover_1=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == cover[0])].SOLUTION
+        sol_rssv_exact_cover_1=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'rssv_exact') & (df_results_cover.SUBAREA == cover[0])].SOLUTION
+        sol_exact_cover_2=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == cover[1])].SOLUTION
+        sol_rssv_exact_cover_2=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'rssv_exact') & (df_results_cover.SUBAREA == cover[1])].SOLUTION
+
+
+        # Plot points and line with the same color
+        plt.plot(p_values, sol_exact_cover_1, color='red', marker='s', linestyle='-', label=f'Exact_{cover[0]}')
+        plt.plot(p_values, sol_rssv_exact_cover_1, color='blue', marker='s', linestyle='-', label=f'RSSV-Exact_{cover[0]}')
+
+        plt.plot(p_values, sol_exact_cover_2, color='red', marker='^', linestyle='-', label=f'Exact_{cover[1]}')
+        plt.plot(p_values, sol_rssv_exact_cover_2, color='blue', marker='^', linestyle='-', label=f'RSSV-Exact_{cover[1]}')
+
+        # Add labels and title
+        plt.xlabel('Values of p')
+        plt.ylabel('Solution value')
+        # if suba!="null": plt.title(f'Solutions with differents values of p: {serv} | {suba}')
+    # else:
+        plt.title(f'Solutions with differents values of p: {serv} | {cover[0]} and {cover[1]}')
+        plt.xticks(p_values)
+        plt.legend()
+        plt.savefig(f'plots/{serv}_plot_cover_{cover[0]}_{cover[1]}.pdf')
+
+        plt.show()
+
 def create_comparative_Sol(path_data, vet_p, cover):
 
     df_results=pd.read_csv(path_data+'table_cpmp.csv')
@@ -11,7 +45,7 @@ def create_comparative_Sol(path_data, vet_p, cover):
     df_results=df_results.sort_values(by='P').reset_index(drop=True)
     df_results_cover=df_results_cover.sort_values(by='P').reset_index(drop=True)
 
-    for serv in ['urgenc']:#['mat', 'urgenc']:
+    for serv in ['mat', 'urgenc']:
         for suba in cover: #['arrond', 'epci']:
             # p_values=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == suba)].P
             p_values=df_results[(df_results.SERVICE == serv) & (df_results.METHOD == 'exact')].P
@@ -37,12 +71,13 @@ def create_comparative_Sol(path_data, vet_p, cover):
             plt.xticks(p_values) 
             # Add legend
             plt.legend()
-            
             # Save the plot as a PDF file
             if suba!="null": plt.savefig(f'plots/{serv}_plot_cover_{suba}.pdf')
             else: plt.savefig(f'plots/{serv}_plot.pdf')
             # Show plot
             plt.show()
+            
+
 
 
 
