@@ -45,7 +45,7 @@ def create_comparative_Sol(path_data, vet_p, cover):
     df_results=df_results.sort_values(by='P').reset_index(drop=True)
     df_results_cover=df_results_cover.sort_values(by='P').reset_index(drop=True)
 
-    for serv in ['mat', 'urgenc']:
+    for serv in ['mat', 'urgenc', 'lycee', 'poste']:
         for suba in cover: #['arrond', 'epci']:
             # p_values=df_results_cover[(df_results_cover.SERVICE == serv) & (df_results_cover.METHOD == 'exact') & (df_results_cover.SUBAREA == suba)].P
             p_values=df_results[(df_results.SERVICE == serv) & (df_results.METHOD == 'exact')].P

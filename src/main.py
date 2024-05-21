@@ -5,6 +5,52 @@ from create_df import create_df_loc_cust
 from graphics_sol import create_plot_Evolution_Sol
 from graphics_sol import create_comparative_Sol, create_plot_comparative_Sol_covers
 
+def plot_service_solutions(csv_file):
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(csv_file)
+    
+    # Filter the DataFrame to include only the relevant methods
+    df_filtered = df[df['METHOD'].isin(['exact', 'rssv_exact'])]
+    
+    # Sort the DataFrame by 'P' values in ascending order
+    df_filtered = df_filtered.sort_values(by='P')
+
+    # print values of p
+    print(df_filtered['P'].unique())
+
+
+    # Group the data by the 'SERVICE' column
+    services = df_filtered['SERVICE'].unique()
+
+    for service in services:
+        plt.figure(figsize=(10, 6))
+        
+        for method in ['exact', 'rssv_exact']:
+            method_data = df_filtered[(df_filtered['SERVICE'] == service) & (df_filtered['METHOD'] == method)]
+            unique_p_values = method_data['P'].unique()
+            # Plot only the unique P values for each service
+            plt.plot(unique_p_values, method_data.groupby('P')['SOLUTION'].mean(), marker='o', label=method)
+            plt.xticks(unique_p_values) 
+        
+        
+        # Customize the plot
+        plt.title(f'Solutions for Service: {service}')
+        plt.xlabel('P') 
+        plt.ylabel('Solution')
+        plt.legend()
+        plt.grid(True)
+
+
+        # Save the plot as a PDF file with the service name included in the filename
+        plt.savefig(f'cpmp_solutions_{service}.pdf', bbox_inches='tight')
+
+
+        # Show the plot
+        plt.show()
+
+
+
+
 def create_table_statistics(services,pvalues,coverages,methods):
     
     columns=['serv','p','cover','method', 'count','mean','std','min','25%','50%','75%','max']
@@ -131,11 +177,16 @@ def main():
     # create_plot_Evolution_Sol(path_table, p, cover)
 
     # Create comparative plot
+    # path_data = './tables/tables_sol/'
+    # vet_p = [26]
+    # cover = ['arrond', 'epci']
+    # create_comparative_Sol(path_data, vet_p, cover)
+    # create_plot_comparative_Sol_covers(path_data, vet_p, cover)
+
+    # Plot service solutions
     path_data = './tables/tables_sol/'
-    vet_p = [26]
-    cover = ['arrond', 'epci']
-    create_comparative_Sol(path_data, vet_p, cover)
-    create_plot_comparative_Sol_covers(path_data, vet_p, cover)
+    csv_file = 'table_cpmp.csv'
+    plot_service_solutions(path_data + csv_file)
 
 
 
