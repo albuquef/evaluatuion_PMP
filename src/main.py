@@ -1,4 +1,5 @@
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 from create_df import create_df_loc_cust
@@ -49,14 +50,130 @@ def plot_service_solutions(csv_file):
         plt.show()
 
 
+def plot_cpmp_cover_service_graphs(csv_file, desired_methods, desired_subareas):
+    # Read the CSV data
+    data = pd.read_csv(csv_file)
+
+    # Clean up the data (handle missing values and correct data types if needed)
+    # data = data.dropna(subset=['SERVICE', 'METHOD', 'SUBAREA', 'P', 'SOLUTION'])
+
+    # Ensure 'null' subarea is treated as a string
+    data['SUBAREA'] = data['SUBAREA'].astype(str)
+
+    # Filter data based on desired methods and subareas
+    filtered_data = data[(data['METHOD'].isin(desired_methods)) & (data['SUBAREA'].isin(desired_subareas))]
 
 
-def create_table_statistics(services,pvalues,coverages,methods):
+
+    # # Create a dictionary for line styles and colors
+    # line_styles = {'exact': '-', 'rssv_exact': '--'}  # Add more methods if necessary
+    # subarea_colors = {'null': 'blue', 'arrond': 'green', 'blue': 'black', 'canton': 'orange', 'commune': 'purple'}  # Add more subareas if necessary
+
+    # Create a dictionary for line styles and colors
+    line_styles = {method: style for method, style in zip(desired_methods, ['-', '--', '-.', ':'])}  # Add more methods if necessary
+    subarea_colors = {subarea: color for subarea, color in zip(desired_subareas, ['black','blue', 'green', 'red', 'cyan', 'magenta'])}  # Add more subareas if necessary
+
+
+
+    # Plot the graphs
+    for service in filtered_data['SERVICE'].unique():
+        plt.figure(figsize=(10, 6))
+        service_data = filtered_data[filtered_data['SERVICE'] == service]
+        
+        for method in service_data['METHOD'].unique():
+            method_data = service_data[service_data['METHOD'] == method]
+            
+            for subarea in method_data['SUBAREA'].unique():
+                subarea_data = method_data[method_data['SUBAREA'] == subarea]
+                subarea_data = subarea_data.sort_values(by='P')
+                plt.plot(subarea_data['P'], subarea_data['SOLUTION'],
+                         linestyle=line_styles.get(method, '-'),
+                         marker='o',
+                         markersize=6,  # Increase marker size
+                         linewidth=2,  # Increase line width
+                         alpha=0.7,  # Add transparency
+                         color=subarea_colors.get(subarea, 'black'),
+                         label=f'{method}-{subarea}')
+        
+        # suba = 'commune'
+        plt.title(f'PACA  Service: {service}')
+        plt.xlabel('P')
+        plt.xticks(subarea_data['P'].unique())
+        plt.ylabel('Solution')
+        # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')  # Position the legend outside the plot
+        plt.legend()
+        plt.grid(True)
+        # plt.tight_layout(rect=[0, 0, 0.75, 1])  # Adjust the plot to make room for the legend
+
+        # Save the plot as a PDF with the name of the service
+        plt.savefig(f'./plots/plots_cpmp_cover/cpmp_cover_sols_{service}.pdf', bbox_inches='tight')
+        plt.show()
+
+
+
+def plot_rel_gap_for_exact_method(csv_file, desired_subareas):
+    # Read the CSV data
+    data = pd.read_csv(csv_file)
     
-    columns=['serv','p','cover','method', 'count','mean','std','min','25%','50%','75%','max']
+    # Ensure 'null' subarea is treated as a string
+    data['SUBAREA'] = data['SUBAREA'].astype(str)
+    
+    method = 'rssv_exact'
+    # Filter data for 'exact' method
+    exact_data = data[data['METHOD'] == method]
+    
+    # Clean up the data (handle missing values and correct data types if needed)
+    exact_data = exact_data.dropna(subset=['SERVICE', 'SUBAREA', 'P', 'REL_GAP'])
+    
+    # Filter data based on desired subareas
+    filtered_data = exact_data[exact_data['SUBAREA'].isin(desired_subareas)]
+    
+    # Convert REL_GAP to percentage
+    filtered_data['REL_GAP'] = filtered_data['REL_GAP'] * 100
+
+    # Create a dictionary for colors
+    subarea_colors = {subarea: color for subarea, color in zip(desired_subareas, ['black', 'blue', 'green', 'red', 'cyan', 'magenta'])}  # Add more subareas if necessary
+
+    # Plot the graphs
+    for service in filtered_data['SERVICE'].unique():
+        plt.figure(figsize=(12, 8))
+        service_data = filtered_data[filtered_data['SERVICE'] == service]
+        
+        for subarea in service_data['SUBAREA'].unique():
+            subarea_data = service_data[service_data['SUBAREA'] == subarea]
+            # Sort the data by P in ascending order
+            subarea_data = subarea_data.sort_values(by='P')
+            
+            plt.plot(subarea_data['P'], subarea_data['REL_GAP'],
+                     linestyle='-',  # Solid line for 'exact' method
+                     marker='s',  # Add marker style
+                     markersize=6,  # Increase marker size
+                     linewidth=2,  # Increase line width
+                     alpha=0.8,  # Add transparency
+                     color=subarea_colors.get(subarea, 'black'),
+                     label=f'{method}-{subarea}')
+        
+        plt.title(f'Service: {service}')
+        plt.xlabel('P')
+        plt.xticks(subarea_data['P'].unique())
+        plt.ylabel('Relative Gap (%)')
+        # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small', title='Subarea')  # Position the legend outside the plot
+        plt.legend()
+        plt.grid(True)
+        # plt.tight_layout(rect=[0, 0, 0.75, 1])  # Adjust the plot to make room for the legend
+        
+        # Save the plot as a PDF with the name of the service
+        plt.savefig(f'./plots/plots_cpmp_cover/cpmp_cover_rel_gap_{method}_{service}.pdf', bbox_inches='tight')
+        plt.show()
+
+
+def create_table_statistics(services, pvalues, coverages, methods):
+    columns = ['serv', 'p', 'cover', 'method', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']
     df_stats = pd.DataFrame(columns=columns)
 
-    df_test_coverages = pd.DataFrame(columns=['serv','p','cover','method', 'num_unique_subareas','num_total_subareas'])
+    df_test_coverages = pd.DataFrame(columns=['serv', 'p', 'cover', 'method', 'num_unique_subareas', 'num_total_subareas'])
+    
+    all_data = []
     
     for method in methods:
         for serv in services:
@@ -66,15 +183,8 @@ def create_table_statistics(services,pvalues,coverages,methods):
                     dist_path = f'./tables/tables_dist/dist_matrix_minutes.txt'
                     txt_path = f'./tables/tables_assign/test_paca_{serv}_{cover}_p_{pvalue}_{method}.txt'    
                     df_locations, df_assignment = create_df_loc_cust(id_path, dist_path, txt_path)
-                    # print("Location Usages:")
-                    # print(df_locations)
-                    # print("\nCustomer Assignments:")
-                    # print(df_assignment)
-                    # print("Statistics about distance:")
-                    # print(df_assignment['distance'].describe())
-
-                    df_stats.loc[len(df_stats)] = [serv,pvalue,cover,method] + df_assignment['distance'].describe().tolist()
-    
+                    
+                    df_stats.loc[len(df_stats)] = [serv, pvalue, cover, method] + df_assignment['distance'].describe().tolist()
                     
                     txt_coverages = f'./tables/tables_coverages/loc_coverages_{cover}.txt'
                     if cover == 'null':
@@ -82,15 +192,36 @@ def create_table_statistics(services,pvalues,coverages,methods):
 
                     subarea_data = pd.read_csv(txt_coverages, sep=' ')
                     num_total_subareas = subarea_data['subarea'].nunique() # Count the number total of unique subareas
-                    # Filter subarea data for locations present in df_locations
                     subarea_data_filtered = subarea_data[subarea_data['location'].isin(df_locations['location'])]
                     num_unique_subareas = subarea_data_filtered['subarea'].nunique() # Count the number of unique subareas covered
-                    # print(f"Number of unique subareas covered: {num_unique_subareas} / {num_total_subareas}")  
                     
-                    df_test_coverages.loc[len(df_test_coverages)] = [serv,pvalue,cover,method, num_unique_subareas,num_total_subareas]
+                    df_test_coverages.loc[len(df_test_coverages)] = [serv, pvalue, cover, method, num_unique_subareas, num_total_subareas]
+                    
+                    # Collect data for plotting
+                    df_assignment['service'] = serv
+                    df_assignment['coverage'] = cover
+                    all_data.append(df_assignment[['distance', 'service', 'coverage']])
     
         df_stats.to_csv(f'df_stats_{method}.csv', index=False, mode='a')
         df_test_coverages.to_csv(f'df_count_coverages_{method}.csv', index=False, mode='a')
+    
+    # Combine all data for plotting
+    all_data_df = pd.concat(all_data, ignore_index=True)
+
+    # Create violin plots
+    for service in all_data_df['service'].unique():
+        plt.figure(figsize=(12, 8))
+        service_data = all_data_df[all_data_df['service'] == service]
+        
+        sns.violinplot(x='coverage', y='distance', data=service_data)
+        plt.title(f'Violin Plot for Service: {service}')
+        plt.xlabel('Coverage Type')
+        plt.ylabel('Distance')
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        
+        plt.savefig(f'./plots/violin_plots/violin_plot_{service}.pdf', bbox_inches='tight')
+        plt.show()
 
 
 def plot_coverages():
@@ -154,17 +285,18 @@ def main():
     # plot_coverages()
 
 
-    # services=['mat']
-    # pvalues=[26,30,33,37,41,44,48]
+    services=['mat']
+    pvalues=[26,30,33,37,41,44,48]
     
     # services=['urgenc']
     # pvalues=[42,48,54,60,66,72,78]
 
-    # coverages=['null']
-    # methods=['RSSV_EXACT_CPMP']
+    coverages=['null', 'arrond', 'epci']
+    methods=['RSSV_EXACT_CPMP']
 
-    # create_table_statistics(services,pvalues,coverages,methods)
+    create_table_statistics(services,pvalues,coverages,methods)
 
+    exit()
 
     # df_locations.to_csv('output.csv', index=False)
 
@@ -184,10 +316,20 @@ def main():
     # create_plot_comparative_Sol_covers(path_data, vet_p, cover)
 
     # Plot service solutions
-    path_data = './tables/tables_sol/'
-    csv_file = 'table_cpmp.csv'
-    plot_service_solutions(path_data + csv_file)
+    # path_data = './tables/tables_sol/'
+    # csv_file = 'table_cpmp.csv'
+    # plot_service_solutions(path_data + csv_file)
 
+    
+    # plot cover line
+    # path_data = './tables/tables_sol/'
+    # csv_file = 'table_cpmp_cover.csv'
+    # # desired_methods = ['exact', 'rssv_exact']
+    # desired_methods = ['rssv_exact']
+    # desired_subareas = ['nan','null','arrond', 'EPCI','canton', 'commune']
+    # # desired_subareas = ['nan','null','commune', 'kmeans_commune']
+    # # plot_cpmp_cover_service_graphs(path_data + csv_file, desired_methods, desired_subareas)
+    # plot_rel_gap_for_exact_method(path_data + csv_file, desired_subareas)
 
 
 
