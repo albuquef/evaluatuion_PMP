@@ -181,7 +181,9 @@ def create_table_statistics(services, pvalues, coverages, methods):
                 for pvalue in pvalues:
                     id_path = f'./tables/tables_id/map_id_cust_loc.txt'
                     dist_path = f'./tables/tables_dist/dist_matrix_minutes.txt'
-                    txt_path = f'./tables/tables_assign/test_paca_{serv}_{cover}_p_{pvalue}_{method}.txt'    
+                    txt_path = f'./tables/tables_assign/test_paca_{serv}_{cover}_canton_p_{pvalue}_{method}_cover_{cover}.txt'    
+                    if cover == 'null':
+                        txt_path = f'./tables/tables_assign/test_paca_{serv}_canton_p_{pvalue}_{method}.txt'
                     df_locations, df_assignment = create_df_loc_cust(id_path, dist_path, txt_path)
                     
                     df_stats.loc[len(df_stats)] = [serv, pvalue, cover, method] + df_assignment['distance'].describe().tolist()
@@ -223,6 +225,21 @@ def create_table_statistics(services, pvalues, coverages, methods):
         plt.savefig(f'./plots/violin_plots/violin_plot_{service}.pdf', bbox_inches='tight')
         plt.show()
 
+    for service in all_data_df['service'].unique():
+        plt.figure(figsize=(12, 8))
+        service_data = all_data_df[all_data_df['service'] == service]
+        
+        sns.violinplot(x='coverage', y='distance', data=service_data, inner=None)  # Set inner to None to remove the inner box plot
+        sns.stripplot(x='coverage', y='distance', data=service_data, color='k', alpha=0.5, jitter=True)  # Add the points
+        
+        plt.title(f'Violin Plot for Service: {service}')
+        plt.xlabel('Coverage Type')
+        plt.ylabel('Distance')
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        
+        plt.savefig(f'./plots/violin_plots/violin_plot_point_{service}.pdf', bbox_inches='tight')
+        plt.show()
 
 def plot_coverages():
     # Data
@@ -285,16 +302,40 @@ def main():
     # plot_coverages()
 
 
-    services=['mat']
-    pvalues=[26,30,33,37,41,44,48]
-    
+    # services=['mat']
+    # # pvalues=[26,30,33,37,41,44,48]
     # services=['urgenc']
     # pvalues=[42,48,54,60,66,72,78]
+    # services=['mat']
+    # pvalues=[37]
+    
+    # services=['urgenc']
+    # pvalues=[60]
+    
+    # services=['lycee']
+    # pvalues=[352]
+    
+    # services=['poste']
+    # pvalues=[681]
 
-    coverages=['null', 'arrond', 'epci']
-    methods=['RSSV_EXACT_CPMP']
+    # coverages=['arrond', 'EPCI', 'canton', 'commune']
+    # methods=['RSSV_EXACT_CPMP']
 
-    create_table_statistics(services,pvalues,coverages,methods)
+    # create_table_statistics(services,pvalues,coverages,methods)
+
+
+    # Define the services and their corresponding p-values
+    services = ['mat', 'urgenc', 'lycee', 'poste']
+    pvalues = [37, 60, 352, 681]
+
+    # Define the coverages and methods
+    coverages = ['arrond', 'EPCI', 'canton', 'commune']
+    methods = ['RSSV_EXACT_CPMP']
+
+    # Loop through each service and its corresponding p-value
+    for service, pvalue in zip(services, pvalues):
+        create_table_statistics([service], [pvalue], coverages, methods)
+
 
     exit()
 
