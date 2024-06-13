@@ -294,7 +294,6 @@ def plot_coverages():
     # plt.show()
 
 
-
 def main():
     print("Main function")
     

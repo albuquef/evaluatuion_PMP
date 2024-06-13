@@ -1,0 +1,69 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+def clean_and_convert(value):
+    if pd.isnull(value):  
+        return np.nan
+    elif isinstance(value, str):  # Check if value is a string
+        if value == '−':  # Replace "−" with NaN
+            return np.nan
+        else: 
+            return float(value.replace(',', '.'))
+    else:  
+        return value
+
+def load_and_filter_data(file_path, method, method_column='Method', instance_column='instance'):
+    data = pd.read_csv(file_path, delimiter=';')
+    data = data[data[method_column] == method]
+    data['solution'] = data['solution'].apply(clean_and_convert)
+    return data
+
+def prepare_and_sort_data(data, filter_instances, instance_column='instance'):
+    data[instance_column] = pd.Categorical(data[instance_column], categories=filter_instances, ordered=True)
+    data = data[data[instance_column].isin(filter_instances)].sort_values(instance_column)
+    data = data.groupby([instance_column, 'Method']).agg({'solution': 'min'}).reset_index()
+    return data
+
+def plot_results(results_list, labels, instance_column='instance'):
+    plt.figure(figsize=(12, 6))
+    for results, label in zip(results_list, labels):
+        plt.plot(results[instance_column], results['solution'], 'o-', label=label)
+    plt.title('Comparison of the Results')
+    plt.xlabel('Instance')
+    plt.xticks(rotation=45)
+    plt.ylabel('Solution')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+def main():
+    filter_instances = ['lin318_005', 'lin318_015', 'lin318_040', 'lin318_070', 'lin318_100', 
+                        'ali535_005', 'ali535_025', 'ali535_050', 'ali535_100', 'ali535_150', 
+                        'u724_010', 'u724_030', 'u724_075', 'u724_125', 'u724_200', 
+                        'rl1304_010', 'rl1304_050', 'rl1304_100', 'rl1304_200', 'rl1304_300']
+
+    results_mario21 = load_and_filter_data('./tables_general/results_mario21.csv', 'Mario_21')
+    results_stefanello15 = load_and_filter_data('./tables_general/results_stefanello15.csv', 'Stef_15')
+    results_cplex = load_and_filter_data('./tables_general/test_all_results.csv', 'EXACT_CPMP_BIN', instance_column='type_service')
+
+    results_mario21 = prepare_and_sort_data(results_mario21, filter_instances)
+    results_stefanello15 = prepare_and_sort_data(results_stefanello15, filter_instances)
+    results_cplex = prepare_and_sort_data(results_cplex, filter_instances, instance_column='type_service')
+
+    # Rename 'type_service' to 'instance' in CPLEX results for uniformity
+    results_cplex.rename(columns={'type_service': 'instance'}, inplace=True)
+
+    # Debug prints to verify sorting
+    print("Results Mario21:")
+    print(results_mario21[['instance', 'solution']])
+    print("\nResults Stefanello15:")
+    print(results_stefanello15[['instance', 'solution']])
+    print("\nResults CPLEX:")
+    print(results_cplex[['instance', 'solution']])
+
+    plot_results([results_mario21, results_stefanello15, results_cplex], 
+                 ['Mario21', 'Stefanello15', 'CPLEX'], instance_column='instance')
+
+if __name__ == "__main__":
+    main()
