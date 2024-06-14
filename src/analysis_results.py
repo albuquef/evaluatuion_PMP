@@ -35,35 +35,58 @@ def plot_results(results_list, labels, instance_column='instance'):
     plt.ylabel('Solution')
     plt.legend()
     plt.tight_layout()
+    plt.savefig('./outputs/plot_results_sjc.png')
     plt.show()
 
 def main():
-    filter_instances = ['lin318_005', 'lin318_015', 'lin318_040', 'lin318_070', 'lin318_100', 
-                        'ali535_005', 'ali535_025', 'ali535_050', 'ali535_100', 'ali535_150', 
-                        'u724_010', 'u724_030', 'u724_075', 'u724_125', 'u724_200', 
-                        'rl1304_010', 'rl1304_050', 'rl1304_100', 'rl1304_200', 'rl1304_300']
+    # filter_instances = ['lin318_005', 'lin318_015', 'lin318_040', 'lin318_070', 'lin318_100', 
+    #                     'ali535_005', 'ali535_025', 'ali535_050', 'ali535_100', 'ali535_150', 
+    #                     'u724_010', 'u724_030', 'u724_075', 'u724_125', 'u724_200', 
+    #                     'rl1304_010', 'rl1304_050', 'rl1304_100', 'rl1304_200', 'rl1304_300']
+    filter_instances = ['SJC1', 'SJC2', 'SJC3a', 'SJC3b', 'SJC4a', 'SJC4b']
+    # filter_instances = ['lin318_005', 'lin318_015', 'lin318_040', 'lin318_070', 'lin318_100']
+    # filter_instances = [ 'ali535_005', 'ali535_025', 'ali535_050', 'ali535_100', 'ali535_150']
+    # filter_instances = ['u724_010', 'u724_030', 'u724_075', 'u724_125', 'u724_200']
+    # filter_instances = ['rl1304_010', 'rl1304_050', 'rl1304_100', 'rl1304_200', 'rl1304_300']
+    # filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
+    # filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
+    # filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
+    # filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
 
-    results_mario21 = load_and_filter_data('./tables_general/results_mario21.csv', 'Mario_21')
-    results_stefanello15 = load_and_filter_data('./tables_general/results_stefanello15.csv', 'Stef_15')
-    results_cplex = load_and_filter_data('./tables_general/test_all_results.csv', 'EXACT_CPMP_BIN', instance_column='type_service')
+
+
+    results_mario21 = load_and_filter_data('./tables/tables_general/results_mario21.csv', 'Mario_21')
+    results_stefanello15 = load_and_filter_data('./tables/tables_general/results_stefanello15.csv', 'Stef_15')
+    results_cplex = load_and_filter_data('./tables/tables_general/test_all_results.csv', 'EXACT_CPMP_BIN', instance_column='type_service')
+    results_rssv = load_and_filter_data('./tables/tables_general/test_all_results_new.csv', 'RSSV', instance_column='type_service')
 
     results_mario21 = prepare_and_sort_data(results_mario21, filter_instances)
     results_stefanello15 = prepare_and_sort_data(results_stefanello15, filter_instances)
     results_cplex = prepare_and_sort_data(results_cplex, filter_instances, instance_column='type_service')
+    results_rssv = prepare_and_sort_data(results_rssv, filter_instances, instance_column='type_service')
 
     # Rename 'type_service' to 'instance' in CPLEX results for uniformity
     results_cplex.rename(columns={'type_service': 'instance'}, inplace=True)
+    results_rssv.rename(columns={'type_service': 'instance'}, inplace=True)
 
-    # Debug prints to verify sorting
+    # Debug prints to verify sorting add time column
     print("Results Mario21:")
     print(results_mario21[['instance', 'solution']])
     print("\nResults Stefanello15:")
     print(results_stefanello15[['instance', 'solution']])
     print("\nResults CPLEX:")
     print(results_cplex[['instance', 'solution']])
+    print("\nResults RSSV:")    
+    print(results_rssv[['instance', 'solution']])
 
-    plot_results([results_mario21, results_stefanello15, results_cplex], 
-                 ['Mario21', 'Stefanello15', 'CPLEX'], instance_column='instance')
+    # plot_results([results_mario21, results_stefanello15, results_cplex, results_rssv], 
+    #              ['Mario21', 'Stefanello15', 'CPLEX', 'RSSV'], instance_column='instance')
+    plot_results([results_stefanello15, results_cplex, results_rssv], 
+                ['Stefanello15', 'CPLEX', 'RSSV'], instance_column='instance')
+    # plot_results([results_stefanello15, results_cplex], 
+    #             ['Stefanello15', 'CPLEX'], instance_column='instance')    
+        # plot_results([results_cplex, results_rssv], 
+    #             ['CPLEX', 'RSSV'], instance_column='instance')
 
 if __name__ == "__main__":
     main()
