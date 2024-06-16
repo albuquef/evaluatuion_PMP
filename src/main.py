@@ -2,9 +2,16 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from create_df import create_df_loc_cust
+from create_df_solutions import create_df_loc_cust
 from graphics_sol import create_plot_Evolution_Sol
-from graphics_sol import create_comparative_Sol, create_plot_comparative_Sol_covers
+from graphics_sol import create_comparative_Sol, create_plot_comparative_Sol_covers, create_violin_plot
+
+
+DIR_DATA ='/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/filterData_PACA_may23'
+DIR_OUTPUTS_PMP = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/test_all_coverages/solutions'
+id_path = DIR_DATA+'/map_id_cust_loc.txt'
+dist_path = DIR_DATA+'/dist_matrix_minutes.txt'
+
 
 def plot_service_solutions(csv_file):
     # Read the CSV file into a DataFrame
@@ -48,7 +55,6 @@ def plot_service_solutions(csv_file):
 
         # Show the plot
         plt.show()
-
 
 def plot_cpmp_cover_service_graphs(csv_file, desired_methods, desired_subareas):
     # Read the CSV data
@@ -109,8 +115,6 @@ def plot_cpmp_cover_service_graphs(csv_file, desired_methods, desired_subareas):
         plt.savefig(f'./plots/plots_cpmp_cover/cpmp_cover_sols_{service}.pdf', bbox_inches='tight')
         plt.show()
 
-
-
 def plot_rel_gap_for_exact_method(csv_file, desired_subareas):
     # Read the CSV data
     data = pd.read_csv(csv_file)
@@ -166,7 +170,6 @@ def plot_rel_gap_for_exact_method(csv_file, desired_subareas):
         plt.savefig(f'./plots/plots_cpmp_cover/cpmp_cover_rel_gap_{method}_{service}.pdf', bbox_inches='tight')
         plt.show()
 
-
 def create_table_statistics(services, pvalues, coverages, methods):
     columns = ['serv', 'p', 'cover', 'method', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']
     df_stats = pd.DataFrame(columns=columns)
@@ -179,18 +182,16 @@ def create_table_statistics(services, pvalues, coverages, methods):
         for serv in services:
             for cover in coverages:
                 for pvalue in pvalues:
-                    id_path = f'./tables/tables_id/map_id_cust_loc.txt'
-                    dist_path = f'./tables/tables_dist/dist_matrix_minutes.txt'
-                    txt_path = f'./tables/tables_assign/test_paca_{serv}_{cover}_canton_p_{pvalue}_{method}_cover_{cover}.txt'    
+                    txt_path = DIR_OUTPUTS_PMP+f'/test_paca_{serv}_{cover}_canton_p_{pvalue}_{method}_cover_{cover}.txt'    
                     if cover == 'null':
-                        txt_path = f'./tables/tables_assign/test_paca_{serv}_canton_p_{pvalue}_{method}.txt'
+                        txt_path = DIR_OUTPUTS_PMP+f'/test_paca_{serv}_canton_p_{pvalue}_{method}.txt'
                     df_locations, df_assignment = create_df_loc_cust(id_path, dist_path, txt_path)
                     
                     df_stats.loc[len(df_stats)] = [serv, pvalue, cover, method] + df_assignment['distance'].describe().tolist()
                     
-                    txt_coverages = f'./tables/tables_coverages/loc_coverages_{cover}.txt'
+                    txt_coverages = DIR_DATA+f'/loc_coverages_{cover}.txt'
                     if cover == 'null':
-                        txt_coverages = f'./tables/tables_coverages/loc_coverages_arrond.txt'
+                        txt_coverages = DIR_DATA + f'/loc_coverages_arrond.txt'
 
                     subarea_data = pd.read_csv(txt_coverages, sep=' ')
                     num_total_subareas = subarea_data['subarea'].nunique() # Count the number total of unique subareas
@@ -202,44 +203,15 @@ def create_table_statistics(services, pvalues, coverages, methods):
                     # Collect data for plotting
                     df_assignment['service'] = serv
                     df_assignment['coverage'] = cover
-                    all_data.append(df_assignment[['distance', 'service', 'coverage']])
+                    all_data.append(df_assignment[['distance', 'weighted_distance', 'service', 'coverage']])
     
-        df_stats.to_csv(f'df_stats_{method}.csv', index=False, mode='a')
-        df_test_coverages.to_csv(f'df_count_coverages_{method}.csv', index=False, mode='a')
+        df_stats.to_csv(f'./outputs/stats/df_stats_{method}.csv', index=False, mode='a')
+        df_test_coverages.to_csv(f'./outputs/stats/df_count_coverages_{method}.csv', index=False, mode='a')
     
     # Combine all data for plotting
-    all_data_df = pd.concat(all_data, ignore_index=True)
+    all_data_assigments = pd.concat(all_data, ignore_index=True)
 
-    # Create violin plots
-    for service in all_data_df['service'].unique():
-        plt.figure(figsize=(12, 8))
-        service_data = all_data_df[all_data_df['service'] == service]
-        
-        sns.violinplot(x='coverage', y='distance', data=service_data)
-        plt.title(f'Violin Plot for Service: {service}')
-        plt.xlabel('Coverage Type')
-        plt.ylabel('Distance')
-        plt.xticks(rotation=45)
-        plt.grid(True)
-        
-        plt.savefig(f'./plots/violin_plots/violin_plot_{service}.pdf', bbox_inches='tight')
-        plt.show()
-
-    for service in all_data_df['service'].unique():
-        plt.figure(figsize=(12, 8))
-        service_data = all_data_df[all_data_df['service'] == service]
-        
-        sns.violinplot(x='coverage', y='distance', data=service_data, inner=None)  # Set inner to None to remove the inner box plot
-        sns.stripplot(x='coverage', y='distance', data=service_data, color='k', alpha=0.5, jitter=True)  # Add the points
-        
-        plt.title(f'Violin Plot for Service: {service}')
-        plt.xlabel('Coverage Type')
-        plt.ylabel('Distance')
-        plt.xticks(rotation=45)
-        plt.grid(True)
-        
-        plt.savefig(f'./plots/violin_plots/violin_plot_point_{service}.pdf', bbox_inches='tight')
-        plt.show()
+    create_violin_plot(all_data_assigments)
 
 def plot_coverages():
     # Data
@@ -328,8 +300,9 @@ def main():
     pvalues = [37, 60, 352, 681]
 
     # Define the coverages and methods
-    coverages = ['arrond', 'EPCI', 'canton', 'commune']
-    methods = ['RSSV_EXACT_CPMP']
+    coverages = ['null','arrond', 'EPCI', 'canton', 'commune']
+    # methods = ['RSSV_EXACT_CPMP']
+    methods = ['EXACT_CPMP']
 
     # Loop through each service and its corresponding p-value
     for service, pvalue in zip(services, pvalues):
@@ -370,8 +343,6 @@ def main():
     # # desired_subareas = ['nan','null','commune', 'kmeans_commune']
     # # plot_cpmp_cover_service_graphs(path_data + csv_file, desired_methods, desired_subareas)
     # plot_rel_gap_for_exact_method(path_data + csv_file, desired_subareas)
-
-
 
 
 if __name__ == "__main__":

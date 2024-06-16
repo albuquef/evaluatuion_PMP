@@ -1,8 +1,7 @@
 
 import matplotlib.pyplot as plt
 import pandas as pd
-# import numpy as np
-
+import seaborn as sns
 
 def create_plot_comparative_Sol_covers(path_data, vet_p, cover):
 
@@ -77,10 +76,6 @@ def create_comparative_Sol(path_data, vet_p, cover):
             # Show plot
             plt.show()
             
-
-
-
-
 def create_plot_Evolution_Sol(path_table, p, cover):
 
     # Read the data from a CSV file
@@ -112,3 +107,36 @@ def create_plot_Evolution_Sol(path_table, p, cover):
 
     # Show the plot (optional)
     # plt.show()
+    
+def create_violin_plot(all_data_assigments):
+
+    # Create violin plots
+    for service in all_data_assigments['service'].unique():
+        plt.figure(figsize=(12, 8))
+        service_data = all_data_assigments[all_data_assigments['service'] == service]
+        
+        sns.violinplot(x='coverage', y='weighted_distance', data=service_data)
+        plt.title(f'Violin Plot for Service: {service}')
+        plt.xlabel('Coverage Type')
+        plt.ylabel('weighted_distance')
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        
+        plt.savefig(f'./plots/violin_plots/violin_plot_{service}.pdf', bbox_inches='tight')
+        plt.show()
+
+    for service in all_data_assigments['service'].unique():
+        plt.figure(figsize=(12, 8))
+        service_data = all_data_assigments[all_data_assigments['service'] == service]
+        
+        sns.violinplot(x='coverage', y='weighted_distance', data=service_data, inner=None)  # Set inner to None to remove the inner box plot
+        sns.stripplot(x='coverage', y='weighted_distance', data=service_data, color='k', alpha=0.5, jitter=True)  # Add the points
+        
+        plt.title(f'Violin Plot for Service: {service}')
+        plt.xlabel('Coverage Type')
+        plt.ylabel('weighted_distance')
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        
+        plt.savefig(f'./plots/violin_plots/violin_plot_point_{service}.pdf', bbox_inches='tight')
+        plt.show()
