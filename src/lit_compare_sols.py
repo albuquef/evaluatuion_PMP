@@ -43,12 +43,12 @@ def main():
     #                     'ali535_005', 'ali535_025', 'ali535_050', 'ali535_100', 'ali535_150', 
     #                     'u724_010', 'u724_030', 'u724_075', 'u724_125', 'u724_200', 
     #                     'rl1304_010', 'rl1304_050', 'rl1304_100', 'rl1304_200', 'rl1304_300']
-    filter_instances = ['SJC1', 'SJC2', 'SJC3a', 'SJC3b', 'SJC4a', 'SJC4b']
+    # filter_instances = ['SJC1', 'SJC2', 'SJC3a', 'SJC3b', 'SJC4a', 'SJC4b']
     # filter_instances = ['lin318_005', 'lin318_015', 'lin318_040', 'lin318_070', 'lin318_100']
     # filter_instances = [ 'ali535_005', 'ali535_025', 'ali535_050', 'ali535_100', 'ali535_150']
     # filter_instances = ['u724_010', 'u724_030', 'u724_075', 'u724_125', 'u724_200']
     # filter_instances = ['rl1304_010', 'rl1304_050', 'rl1304_100', 'rl1304_200', 'rl1304_300']
-    # filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
+    filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
     # filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
     # filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
     # filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
