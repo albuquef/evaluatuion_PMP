@@ -58,7 +58,7 @@ def main():
     results_mario21 = load_and_filter_data('./tables/tables_general/results_mario21.csv', 'Mario_21')
     results_stefanello15 = load_and_filter_data('./tables/tables_general/results_stefanello15.csv', 'Stef_15')
     results_cplex = load_and_filter_data('./tables/tables_general/test_all_results.csv', 'EXACT_CPMP_BIN', instance_column='type_service')
-    results_rssv = load_and_filter_data('./tables/tables_general/test_all_results_new.csv', 'RSSV', instance_column='type_service')
+    results_rssv = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-13_save-cluster/outputs/solutions/test_all_results.csv', 'RSSV', instance_column='type_service')
 
     results_mario21 = prepare_and_sort_data(results_mario21, filter_instances)
     results_stefanello15 = prepare_and_sort_data(results_stefanello15, filter_instances)
