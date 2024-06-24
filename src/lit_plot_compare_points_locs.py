@@ -4,20 +4,24 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 # Directory where .out files are located
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-14_save-cluster/'
 # directory_logs =  '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-13_save-cluster/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/'
-directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/'
-# directory = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/artificial/'
-directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
-loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/'
+# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/'
+directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2'
+
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-13_save-cluster/outputs/solutions/2024-06-12_LIT/Assignments/'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Assignments/'
-directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/outputs/solutions/2024-06-20_LIT/Assignments/'
+# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/outputs/solutions/2024-06-20_LIT/Assignments/'
+directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Assignments'
 
+directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
+loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/'
 # Regex patterns to match the required lines
-pattern_filtered_locations = re.compile(r'Filtered (\d+) locations: (.+)')
+# pattern_filtered_locations = re.compile(r'Filtered (\d+) locations: (.+)')
+pattern_filtered_locations = re.compile(r'Final (\d+) locations: (.+)')
 pattern_instance = re.compile(r'service: (.+)')
 
 def map_group(instance):
