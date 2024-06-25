@@ -10,18 +10,22 @@ import numpy as np
 # directory_logs =  '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-13_save-cluster/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/'
-directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2'
+directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/'
+directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/test_h_bandwidth_bigger/'
+# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/test_h_bandwidth_smaller/'
 
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-13_save-cluster/outputs/solutions/2024-06-12_LIT/Assignments/'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Assignments/'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/outputs/solutions/2024-06-20_LIT/Assignments/'
-directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Assignments'
+# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Assignments'
+# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/outputs/solutions/2024-06-24_LIT/Assignments'
+directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/test_h_bandwidth_bigger/outputs/solutions/2024-06-25_LIT/Assignments'
 
 directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
 loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/'
 # Regex patterns to match the required lines
-# pattern_filtered_locations = re.compile(r'Filtered (\d+) locations: (.+)')
-pattern_filtered_locations = re.compile(r'Final (\d+) locations: (.+)')
+pattern_filtered_locations = re.compile(r'Filtered (\d+) locations: (.+)')
+# pattern_filtered_locations = re.compile(r'Final (\d+) locations: (.+)')
 pattern_instance = re.compile(r'service: (.+)')
 
 def map_group(instance):
@@ -105,6 +109,10 @@ def extract_solution_method(file_path_solutions_method, instance):
 
     # Initialize a list to store the P LOCATIONS
     p_locations = []
+
+    if not os.path.exists(file_path):
+        print(f"File not found: {file_path}")
+        return p_locations
 
     # Read the file and extract the P LOCATIONS section
     with open(file_path, 'r') as file:

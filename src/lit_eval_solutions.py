@@ -2,6 +2,7 @@ import os
 import math
 import glob
 import statistics
+import pandas as pd
 
 def read_customer_data(filename):
     customer_data = {}
@@ -95,13 +96,33 @@ def min_dit_bigger_than_zero(distances):
             min_dist_diff_zero = d
     return min_dist_diff_zero
 
+def append_row(df, base_filename, total_distance, max_distance, min_distance, min_dist_diff_zero, avg_distance, stddev_distance):
+    new_row = pd.DataFrame([{
+        'base filename': base_filename,
+        'Total Euclidean Distance': total_distance,
+        'Minimum Distance': min_distance,
+        'Minimum Distance Different from Zero': min_dist_diff_zero,
+        'Maximum Distance': max_distance,
+        'Average Distance': avg_distance,
+        'Standard Deviation of Distances': stddev_distance
+    }])
+    return pd.concat([df, new_row], ignore_index=True)
+
+
 def process_files(directory_data, directory_sols_method, directory_sol_lit, base_filenames):
+    
+    # Define the columns of the DataFrame
+    columns = ['base filename', 'Total Euclidean Distance', 'Minimum Distance', 'Minimum Distance Different from Zero', 'Maximum Distance','Average Distance', 'Standard Deviation of Distances']
+
+    # Create an empty DataFrame with the defined columns
+    df_table = pd.DataFrame(columns=columns)
+    
     for base_filename in base_filenames:
         customer_data_file = os.path.join(directory_data, f'cust_weights_{base_filename}.txt')
         # assignment_files = glob.glob(os.path.join(directory_sols_method, f'test_lit_{base_filename}_p_*_RSSV_EXACT_CPMP_BIN.txt'))
         assignment_files = glob.glob(os.path.join(directory_sols_method, f'test_lit_{base_filename}_p_*.txt'))
-        # solution_file = glob.glob(os.path.join(directory_sol_lit, f'solucao.{base_filename}_*.txt'))[0]
-        solution_file = glob.glob(os.path.join(directory_sol_lit, f'soluOPT.{base_filename}_*.txt'))[0]
+        solution_file = glob.glob(os.path.join(directory_sol_lit, f'solucao.{base_filename}_*.txt'))[0]
+        # solution_file = glob.glob(os.path.join(directory_sol_lit, f'soluOPT.{base_filename}_*.txt'))[0]
 
         print(f"Processing files for base filename {base_filename}:")
         print(f"Customer Data File: {customer_data_file}")
@@ -143,6 +164,19 @@ def process_files(directory_data, directory_sols_method, directory_sol_lit, base
             print(f"Standard Deviation of Distances: {stddev_distance}")
             print('-' * 50)
 
+            # save results in file csv where the min max avg and std are saved as columns
+            # df_table = pd.DataFrame({'base filename': base_filename, 'Total Euclidean Distance': total_distance, 
+            #                           'Minimum Distance': min_distance, 'Minimum Distance Different from Zero': min_dist_diff_zero, 
+            #                           'Maximum Distance': max_distance, 'Average Distance': avg_distance,
+            #                           'Standard Deviation of Distances': stddev_distance})
+            # df_table.to_csv('results_method.csv', mode='a', header=False, index=False)
+
+            # convert to list and save in file csv
+            df_table = append_row(df_table, base_filename, total_distance, max_distance, min_distance, min_dist_diff_zero, avg_distance, stddev_distance)
+
+
+
+
 
         print('-' * 50)
         print(f"Solution File: {solution_file}")
@@ -181,16 +215,41 @@ def process_files(directory_data, directory_sols_method, directory_sol_lit, base
         print(f"Sum of Distances from Clusters: {sum_cluster_distances}")
         print()
 
+        # add one table with the results
+        # add one table with the results
+        table = []
+        table.append(["base filename", base_filename])
+        table.append(["Total Euclidean Distance", total_distance])
+        table.append(["Maximum Distance", max_distance])
+        table.append(["Minimum Distance", min_distance])
+        table.append(["Minimum Distance Different from Zero", min_dist_diff_zero])
+        table.append(["Average Distance", avg_distance])
+        table.append(["Standard Deviation of Distances", stddev_distance])
+        table.append(["Sum of Distances from Clusters", sum_cluster_distances])
+        # save and append in file csv results
+        with open(f'results_sol_literature.csv', 'w') as file:
+            for row in table:
+                file.write(f'{row[0]},{row[1]}\n')
+
+
+    # save the results in file csv
+    df_table.to_csv('results_method.csv', mode='a', header=False, index=False)
+
+
+
 def main():
-    # directory_data = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/group5/'
-    # directory_sol_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
+    directory_data = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/group5/'
+    directory_sol_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
     # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Assignments'
-    # base_filenames = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
     
-    directory_data = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/group2/'
-    directory_sol_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
-    directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/outputs/solutions/2024-06-24_LIT/Assignments'
-    base_filenames = ['SJC1']
+    # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Assignments'
+    directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/outputs/solutions/2024-06-24_LIT/Assignments'
+    base_filenames = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
+    
+    # directory_data = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/group2/'
+    # directory_sol_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
+    # directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/outputs/solutions/2024-06-24_LIT/Assignments'
+    # base_filenames = ['SJC1']
     
     process_files(directory_data, directory_sols_method, directory_sol_lit, base_filenames)
 

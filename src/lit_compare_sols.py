@@ -60,7 +60,10 @@ def main():
     results_cplex = load_and_filter_data('./tables/tables_general/test_all_results.csv', 'EXACT_CPMP_BIN', instance_column='type_service')
     results_rssv = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
     # results_rssv_2 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/outputs/solutions/2024-06-20_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
-    results_rssv_2 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
+    # results_rssv_2 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
+    # results_rssv_2 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
+    results_rssv = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/test_h_bandwidth_smaller/outputs/solutions/2024-06-25_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
+    results_rssv_2 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/test_h_bandwidth_bigger/outputs/solutions/2024-06-25_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
 
 
     results_mario21 = prepare_and_sort_data(results_mario21, filter_instances)
@@ -89,7 +92,7 @@ def main():
     # plot_results([results_mario21, results_stefanello15, results_cplex, results_rssv], 
     #              ['Mario21', 'Stefanello15', 'CPLEX', 'RSSV'], instance_column='instance')
     plot_results([results_stefanello15, results_cplex, results_rssv, results_rssv_2], 
-                ['Stefanello15', 'CPLEX', 'RSSV', 'RSSV_repLocs'], instance_column='instance')
+                ['Stefanello15', 'CPLEX', 'RSSV_smaller_h', 'RSSV_bigger_h'], instance_column='instance')
     # plot_results([results_stefanello15, results_cplex], 
     #             ['Stefanello15', 'CPLEX'], instance_column='instance')    
         # plot_results([results_cplex, results_rssv], 
