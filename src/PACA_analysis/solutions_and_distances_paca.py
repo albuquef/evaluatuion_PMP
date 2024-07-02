@@ -3,6 +3,7 @@ import glob
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import numpy as np
 
 def read_distances_from_file(file_path):
     distances = {}
@@ -100,21 +101,32 @@ def plot_objectives_vs_p_locations(data):
     plt.show()
 
 def plot_objectives_vs_p_locations(data_vectors, colors, legends):
+    
+    np.random.seed(0)  # Set seed for reproducibility
+    
     plt.figure(figsize=(10, 6))
-
-    ploc_size = []
 
     for i, data in enumerate(data_vectors):
         objectives = [item[0] for item in data]
         p_locations_sizes = [item[2] for item in data]
-        objectives = [x for _, x in sorted(zip(p_locations_sizes, objectives))]
-        p_locations_sizes = sorted(p_locations_sizes)
-        ploc_size = p_locations_sizes
-        label = legends[i]
-        plt.scatter(p_locations_sizes, objectives, color=colors[i], label=label)
 
+        # Generate jitter values
+        jitter = np.random.normal(scale=0.01, size=len(p_locations_sizes))
+
+        # Add jitter to x-coordinates
+        p_locations_sizes_jittered = [x + jitter[idx] for idx, x in enumerate(p_locations_sizes)]
+
+        # Sort based on jittered p_locations_sizes
+        sorted_indices = np.argsort(p_locations_sizes_jittered)
+        p_locations_sizes_sorted = [p_locations_sizes_jittered[idx] for idx in sorted_indices]
+        objectives_sorted = [objectives[idx] for idx in sorted_indices]
+
+        label = legends[i]
+        plt.scatter(p_locations_sizes_sorted, objectives_sorted, color=colors[i], label=label)
+
+    rounded_p_locations_sizes = [round(x) for x in p_locations_sizes_sorted]
+    plt.xticks(rounded_p_locations_sizes)
     plt.xlabel('Number of p')
-    plt.xticks(ploc_size)
     plt.ylabel('Objective Values')
     plt.title('Objectives values with different number of p locations')
     plt.grid(True)
@@ -175,6 +187,96 @@ def plot_violin_dist_weights(data_vectors, colors, legends, pvalue):
     plt.tight_layout()
     plt.show()
 
+def plot_sol_and_violin(data_vectors, colors, legends,pvalue):
+    np.random.seed(0)  # Set seed for reproducibility
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 6))  # Create a figure with two subplots
+    
+    for i, data in enumerate(data_vectors):
+        objectives = [item[0] for item in data]
+        p_locations_sizes = [item[2] for item in data]
+
+        # Generate jitter values
+        jitter = np.random.normal(scale=0.01, size=len(p_locations_sizes))
+
+        # Add jitter to x-coordinates
+        p_locations_sizes_jittered = [x + jitter[idx] for idx, x in enumerate(p_locations_sizes)]
+
+        # Sort based on jittered p_locations_sizes
+        sorted_indices = np.argsort(p_locations_sizes_jittered)
+        p_locations_sizes_sorted = [p_locations_sizes_jittered[idx] for idx in sorted_indices]
+        objectives_sorted = [objectives[idx] for idx in sorted_indices]
+
+        label = legends[i]
+        ax1.scatter(p_locations_sizes_sorted, objectives_sorted, color=colors[i], label=label)
+
+    rounded_p_locations_sizes = [round(x) for x in p_locations_sizes_sorted]
+    ax1.set_xticks(rounded_p_locations_sizes)
+    ax1.set_xlabel('Number of p')
+    ax1.set_ylabel('Objective Values')
+    ax1.set_title('Objectives values with different number of p locations')
+    ax1.grid(True)
+    ax1.legend()
+
+    # Plot violin plot in the second subplot
+    plot_violin_dist_weights_ax(data_vectors, colors, legends, pvalue=pvalue, ax=ax2)
+
+    plt.tight_layout()
+    plt.savefig('plots/plots_paca/objectives_vs_violin.pdf')
+    plt.show()
+
+def plot_violin_dist_weights_ax(data_vectors, colors, legends, pvalue, ax=None):
+
+    # Read distances from file
+    distances = read_distances_from_file('/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/filterData_PACA_may23/dist_matrix_minutes.txt')
+
+    all_weights = []
+
+    for i, data in enumerate(data_vectors):
+        # Ensure filtered_data has exactly one item
+        filtered_data = [item for item in data if item[2] == pvalue]
+
+        if len(filtered_data) != 1:
+            raise ValueError(f"Filtered data for dataset {i} does not have exactly one item.")
+
+        _, _, _, customer_assignments = filtered_data[0]
+
+        all_products = []
+        for (cust, loc), usage in customer_assignments.items():
+            # Compute distance
+            if cust in distances and loc in distances[cust]:
+                distance = distances[cust][loc]
+            else:
+                raise ValueError(f"Distance not found for customer {cust} and location {loc}.")
+
+            # Compute product
+            product = usage * distance
+            all_products.append(product)
+
+        all_weights.append(all_products)
+
+    # Create a DataFrame
+    df = pd.DataFrame(all_weights).transpose()
+    df.columns = legends
+
+    # If ax is None, create a new figure and axis
+    if ax is None:
+        plt.figure(figsize=(12, 8))
+        ax = plt.gca()
+
+    # Plot violin plot
+    sns.violinplot(data=df, palette=colors, ax=ax)
+
+    # Create custom legend handles and labels
+    legend_handles = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10) for color in colors]
+    legend_labels = legends[:len(colors)]  # Ensure legend labels match the number of colors
+
+    # Add legend
+    ax.legend(legend_handles, legend_labels, title='Datasets')
+
+    ax.set_xlabel('Dataset')
+    ax.set_ylabel('Usage*Dist Values')
+    ax.set_title('Usage*Dist Values Distribution per Dataset')
 
 
 
@@ -265,41 +367,47 @@ colors = ['black', 'blue', 'green']
 legends = ['mat','mat_shuffled', 'mat_split']
 plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends)
 plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends, 37)
+plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends, 37)
+
 
 # poste
 colors = ['black', 'blue', 'green']
 legends = ['poste','poste_shuffled', 'poste_split']
 plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends)
 plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends, 681)
-
+plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends, 681)
 
 # plot different covers
 colors = ['black', 'blue', 'green', 'orange']
 legends = ['mat','mat_arrond', 'mat_kmeans_arrond', 'mat_grid_arrond']
 plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond, all_extracted_data_mat_cover_grid_arrond], colors, legends)
 plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond,all_extracted_data_mat_cover_grid_arrond], colors, legends, 37)
+plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond, all_extracted_data_mat_cover_grid_arrond], colors, legends, 37)
 
-colors = ['black', 'blue', 'green']
-legends = ['mat','mat_EPCI', 'mat_kmeans_EPCI']
-plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI], colors, legends)
-plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI], colors, legends, 37)
+
+colors = ['black', 'blue', 'green', 'orange']
+legends = ['mat','mat_EPCI', 'mat_kmeans_EPCI', 'mat_grid_EPCI']
+plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends)
+plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends, 37)
+plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends, 37)
+
 
 colors = ['black', 'blue', 'green', 'orange']
 legends = ['mat','mat_canton', 'mat_kmeans_canton', 'mat_grid_canton']
 plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton, all_extracted_data_mat_cover_grid_canton], colors, legends)
 plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton,all_extracted_data_mat_cover_grid_canton], colors, legends, 37)
-
+plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton, all_extracted_data_mat_cover_grid_canton], colors, legends, 37)   
 
 colors = ['black', 'blue', 'green', 'orange']
 legends = ['poste','poste_canton', 'poste_kmeans_canton', 'poste_grid_canton']
 plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton, all_extracted_data_poste_cover_grid_canton], colors, legends)
 plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton,all_extracted_data_poste_cover_grid_canton], colors, legends, 681)
-
+plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton, all_extracted_data_poste_cover_grid_canton], colors, legends, 681)
 colors = ['black', 'blue', 'green', 'orange']
 legends = ['poste','poste_commune', 'poste_kmeans_commune', 'poste_grid_commune']
 plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune, all_extracted_data_poste_cover_grid_commune], colors, legends)
 plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune,all_extracted_data_poste_cover_grid_commune], colors, legends, 681)
-
+plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune, all_extracted_data_poste_cover_grid_commune], colors, legends, 681)
 
 
 # Plost Multiechelles vs Original covers
@@ -308,12 +416,14 @@ colors = ['black', 'blueviolet', 'blue', 'green', 'orange']
 legends = ['mat','mat_arrond_canton', 'mat_arrond', 'mat_canton', 'mat_EPCI']
 plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends)
 plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends, 37)
-
+plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends, 37)
 
 colors = ['black', 'blueviolet', 'blue', 'green']
 legends = ['poste','poste_canton_commune', 'poste_canton', 'poste_commune']
 plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends)
 plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends, 681)
+plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends, 681) 
+
 
 # colors = ['blueviolet', 'green']
 # legends = ['poste_canton_commune', 'poste_commune']
