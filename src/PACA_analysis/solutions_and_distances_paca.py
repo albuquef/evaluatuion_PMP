@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import geopandas as gpd
+from shapely.geometry import Point
 
 def read_distances_from_file(file_path):
     distances = {}
@@ -76,6 +78,13 @@ def extract_data_from_file(file_path):
     # print(f"Final Customer Assignments: {customer_assignments}")  # Debug print
 
     return objective, p_locations, p_locations_size, customer_assignments
+    
+    # return {
+    #     'objective': objective,
+    #     'p_locations': p_locations,
+    #     'p_locations_size': p_locations_size,
+    #     'customer_assignments': customer_assignments
+    # }
 
 def read_all_files_in_directory(directory_path):
     file_paths = glob.glob(os.path.join(directory_path, '*.txt'))
@@ -84,6 +93,22 @@ def read_all_files_in_directory(directory_path):
         data = extract_data_from_file(file_path)
         all_data.append(data)
     return all_data
+
+def read_coordinates_from_csv(csv_file):
+    df = pd.read_csv(csv_file)
+    coordinates = {}
+    for _, row in df.iterrows():
+        coordinates[int(row['fid'])] = (row['x'], row['y'])
+    return coordinates
+
+def filter_by_p_locations_size(data_list, specific_size):
+    filtered_data = []
+    for data in data_list:
+        _, _, p_locations_size, _ = data
+        if p_locations_size == specific_size:
+            filtered_data.append(data)
+    return filtered_data
+
 
 def plot_objectives_vs_p_locations(data):
     objectives = [item[0] for item in data]
@@ -278,9 +303,90 @@ def plot_violin_dist_weights_ax(data_vectors, colors, legends, pvalue, ax=None):
     ax.set_ylabel('Usage*Dist Values')
     ax.set_title('Usage*Dist Values Distribution per Dataset')
 
+def plot_locations_and_assignments(filtered_data, location_coords, customer_coords, output_dir):
+    for index, data in enumerate(filtered_data):
+        objective, p_locations, p_locations_size, customer_assignments = data
 
+        # Create GeoDataFrames for plotting
+        location_points = [Point(location_coords[loc]) for loc in p_locations if loc in location_coords]
+        location_gdf = gpd.GeoDataFrame({'location_id': p_locations}, geometry=location_points)
+        
+        customer_points = [Point(customer_coords[cust]) for cust, loc in customer_assignments.keys() if cust in customer_coords]
+        customer_gdf = gpd.GeoDataFrame({'customer_id': [cust for cust, loc in customer_assignments.keys()]}, geometry=customer_points)
+        
+        # Plot the locations and customer assignments
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+        # location_gdf.plot(ax=ax, color='red', marker='o', label='Locations')
+        # location_gdf.plot(ax=ax, color='red', marker='o',markersize=60, label='Locations')
+        customer_gdf.plot(ax=ax, color='blue', marker='x', label='Customers')
+        
+        for (customer, location), usage in customer_assignments.items():
+            if customer in customer_coords and location in location_coords:
+                customer_point = Point(customer_coords[customer])
+                location_point = Point(location_coords[location])
+                plt.plot([customer_point.x, location_point.x], [customer_point.y, location_point.y], 'k-', alpha=0.5)
+        
+        location_gdf.plot(ax=ax, color='red', marker='o',markersize=60, label='Locations')
+        
+        plt.legend()
+        plt.savefig(f'plots/visual_solution/locations_customers_{index}.png')
+        # plt.show()
 
+        # Export to shapefile
+        locations_shapefile_path = os.path.join(output_dir, f'locations_{index}.shp')
+        customers_shapefile_path = os.path.join(output_dir, f'customers_{index}.shp')
+        
+        location_gdf.to_file(locations_shapefile_path)
+        customer_gdf.to_file(customers_shapefile_path)
 
+def plot_locations_and_assignments_side_by_side(filtered_data, location_coords, customer_coords, output_dir, legends):
+    num_plots = len(filtered_data)
+    fig, axes = plt.subplots(1, num_plots, figsize=(20, 10 * num_plots))
+    
+    if num_plots == 1:
+        axes = [axes]
+
+    for index, data in enumerate(filtered_data):
+        objective, p_locations, p_locations_size, customer_assignments = data
+
+        # Create GeoDataFrames for plotting
+        location_points = [Point(location_coords[loc]) for loc in p_locations if loc in location_coords]
+        location_gdf = gpd.GeoDataFrame({'location_id': p_locations}, geometry=location_points)
+        
+        customer_points = [Point(customer_coords[cust]) for cust, loc in customer_assignments.keys() if cust in customer_coords]
+        customer_gdf = gpd.GeoDataFrame({'customer_id': [cust for cust, loc in customer_assignments.keys()]}, geometry=customer_points)
+        
+        # Plot customer assignments
+        customer_gdf.plot(ax=axes[index], color='blue', marker='x', label='Customers')
+        for (customer, location), usage in customer_assignments.items():
+            if customer in customer_coords and location in location_coords:
+                customer_point = Point(customer_coords[customer])
+                location_point = Point(location_coords[location])
+                axes[index].plot([customer_point.x, location_point.x], [customer_point.y, location_point.y], 'k-', alpha=0.5)
+        
+        # Plot locations
+        location_gdf.plot(ax=axes[index], color='red', marker='o', markersize=30, label='Locations')
+        
+        # axes[index].set_title(f'Dataset {index + 1}')
+        axes[index].set_title(legends[index])
+        axes[index].legend()
+
+        # Export to shapefile
+        locations_shapefile_path = os.path.join(output_dir, f'locations_{index}.shp')
+        customers_shapefile_path = os.path.join(output_dir, f'customers_{index}.shp')
+        
+        location_gdf.to_file(locations_shapefile_path)
+        customer_gdf.to_file(customers_shapefile_path)
+
+    plt.tight_layout()
+    plt.savefig(f'plots/visual_solution/locations_customers_side_by_side_{legends[0]}.pdf')
+    plt.show()
+        # # Export to shapefile
+        # locations_shapefile_path = os.path.join(output_dir, f'locations_{index}.shp')
+        # customers_shapefile_path = os.path.join(output_dir, f'customers_{index}.shp')
+        
+        # location_gdf.to_file(locations_shapefile_path)
+        # customer_gdf.to_file(customers_shapefile_path)
 
 # without coverages
 directory_path_mat = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-02_Tests_Cyrille/Cyrille/distr_pop/original/outputs/solutions/2024-07-01_PACA/Assignments/mat/'
@@ -363,79 +469,112 @@ all_extracted_data_poste_cover_grid_commune = read_all_files_in_directory(direct
 
 # Plots compare solutions with diff weightsds
 # mat
-colors = ['black', 'blue', 'green']
-legends = ['mat','mat_shuffled', 'mat_split']
-plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends)
-plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends, 37)
-plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends, 37)
+# colors = ['black', 'blue', 'green']
+# legends = ['mat','mat_shuffled', 'mat_split']
+# plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends, 37)
+# plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_weight_shuffled, all_extracted_data_mat_weight_split], colors, legends, 37)
 
 
 # poste
-colors = ['black', 'blue', 'green']
-legends = ['poste','poste_shuffled', 'poste_split']
-plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends)
-plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends, 681)
-plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends, 681)
+# colors = ['black', 'blue', 'green']
+# legends = ['poste','poste_shuffled', 'poste_split']
+# plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends, 681)
+# plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_weight_shuffled, all_extracted_data_poste_weight_split], colors, legends, 681)
 
 # plot different covers
-colors = ['black', 'blue', 'green', 'orange']
-legends = ['mat','mat_arrond', 'mat_kmeans_arrond', 'mat_grid_arrond']
-plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond, all_extracted_data_mat_cover_grid_arrond], colors, legends)
-plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond,all_extracted_data_mat_cover_grid_arrond], colors, legends, 37)
-plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond, all_extracted_data_mat_cover_grid_arrond], colors, legends, 37)
+# colors = ['black', 'blue', 'green', 'orange']
+# legends = ['mat','mat_arrond', 'mat_kmeans_arrond', 'mat_grid_arrond']
+# plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond, all_extracted_data_mat_cover_grid_arrond], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond,all_extracted_data_mat_cover_grid_arrond], colors, legends, 37)
+# plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_kmeans_arrond, all_extracted_data_mat_cover_grid_arrond], colors, legends, 37)
 
 
-colors = ['black', 'blue', 'green', 'orange']
-legends = ['mat','mat_EPCI', 'mat_kmeans_EPCI', 'mat_grid_EPCI']
-plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends)
-plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends, 37)
-plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends, 37)
+# colors = ['black', 'blue', 'green', 'orange']
+# legends = ['mat','mat_EPCI', 'mat_kmeans_EPCI', 'mat_grid_EPCI']
+# plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends, 37)
+# plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_EPCI, all_extracted_data_mat_cover_kmeans_EPCI, all_extracted_data_mat_cover_grid_EPCI], colors, legends, 37)
 
 
-colors = ['black', 'blue', 'green', 'orange']
-legends = ['mat','mat_canton', 'mat_kmeans_canton', 'mat_grid_canton']
-plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton, all_extracted_data_mat_cover_grid_canton], colors, legends)
-plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton,all_extracted_data_mat_cover_grid_canton], colors, legends, 37)
-plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton, all_extracted_data_mat_cover_grid_canton], colors, legends, 37)   
+# colors = ['black', 'blue', 'green', 'orange']
+# legends = ['mat','mat_canton', 'mat_kmeans_canton', 'mat_grid_canton']
+# plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton, all_extracted_data_mat_cover_grid_canton], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton,all_extracted_data_mat_cover_grid_canton], colors, legends, 37)
+# plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_mat_cover_canton, all_extracted_data_mat_cover_kmeans_canton, all_extracted_data_mat_cover_grid_canton], colors, legends, 37)   
 
-colors = ['black', 'blue', 'green', 'orange']
-legends = ['poste','poste_canton', 'poste_kmeans_canton', 'poste_grid_canton']
-plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton, all_extracted_data_poste_cover_grid_canton], colors, legends)
-plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton,all_extracted_data_poste_cover_grid_canton], colors, legends, 681)
-plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton, all_extracted_data_poste_cover_grid_canton], colors, legends, 681)
-colors = ['black', 'blue', 'green', 'orange']
-legends = ['poste','poste_commune', 'poste_kmeans_commune', 'poste_grid_commune']
-plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune, all_extracted_data_poste_cover_grid_commune], colors, legends)
-plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune,all_extracted_data_poste_cover_grid_commune], colors, legends, 681)
-plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune, all_extracted_data_poste_cover_grid_commune], colors, legends, 681)
+
+
+# colors = ['black', 'blue', 'green', 'orange']
+# legends = ['poste','poste_canton', 'poste_kmeans_canton', 'poste_grid_canton']
+# plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton, all_extracted_data_poste_cover_grid_canton], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton,all_extracted_data_poste_cover_grid_canton], colors, legends, 681)
+# plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_kmeans_canton, all_extracted_data_poste_cover_grid_canton], colors, legends, 681)
+
+
+# colors = ['black', 'blue', 'green', 'orange']
+# legends = ['poste','poste_commune', 'poste_kmeans_commune', 'poste_grid_commune']
+# plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune, all_extracted_data_poste_cover_grid_commune], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune,all_extracted_data_poste_cover_grid_commune], colors, legends, 681)
+# plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_poste_cover_commune, all_extracted_data_poste_cover_kmeans_commune, all_extracted_data_poste_cover_grid_commune], colors, legends, 681)
 
 
 # Plost Multiechelles vs Original covers
 # mat
-colors = ['black', 'blueviolet', 'blue', 'green', 'orange']
-legends = ['mat','mat_arrond_canton', 'mat_arrond', 'mat_canton', 'mat_EPCI']
-plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends)
-plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends, 37)
-plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends, 37)
-
-colors = ['black', 'blueviolet', 'blue', 'green']
-legends = ['poste','poste_canton_commune', 'poste_canton', 'poste_commune']
-plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends)
-plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends, 681)
-plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends, 681) 
-
-
-# colors = ['blueviolet', 'green']
-# legends = ['poste_canton_commune', 'poste_commune']
-# plot_objectives_vs_p_locations([all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_commune], colors, legends)
+# colors = ['black', 'blueviolet', 'blue', 'green', 'orange']
+# legends = ['mat','mat_arrond_canton', 'mat_arrond', 'mat_canton', 'mat_EPCI']
+# plot_objectives_vs_p_locations([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends, 37)
+# plot_sol_and_violin([all_extracted_data_mat, all_extracted_data_multiechelle_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton,all_extracted_data_mat_cover_EPCI], colors, legends, 37)
 
 
 
-# # # Print the extracted data
-# for data in all_extracted_data_mat:
-#     objective, p_locations, p_locations_size, customer_assignments = data
-#     print(f"Objective: {objective}")
-#     print(f"P LOCATIONS: {p_locations} (Size: {p_locations_size})")
-#     print(f"CUSTOMER ASSIGNMENTS: {customer_assignments}")
-#     print(len(customer_assignments))
-#     print()
+# colors = ['black', 'blueviolet', 'blue', 'green']
+# legends = ['poste','poste_canton_commune', 'poste_canton', 'poste_commune']
+# plot_objectives_vs_p_locations([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends)
+# plot_violin_dist_weights([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends, 681)
+# plot_sol_and_violin([all_extracted_data_poste, all_extracted_data_multiechelle_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune], colors, legends, 681) 
+
+
+
+output_dir = 'outputs/shapefiles/'  # Directory to save shapefiles
+
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+
+coordinates = read_coordinates_from_csv('./locations_paca_2017_coord.csv')
+# Assuming customer coordinates are also in the same format and file, otherwise provide another CSV or method
+location_coords = coordinates
+customer_coords = coordinates
+
+
+# Define specific value of p_locations_size
+specific_size = 26
+
+# Filter data by specific value of p_locations_size
+all_filtered = []
+legends = ['mat','mat_cover_arrond', 'mat_cover_canton', 'mat_arrond_canton']
+for data in [all_extracted_data_mat, all_extracted_data_mat_cover_arrond, all_extracted_data_mat_cover_canton, all_extracted_data_multiechelle_mat]:
+    filtered_data = filter_by_p_locations_size(data, specific_size)  # Corrected here
+    all_filtered.extend(filtered_data)  # Changed to extend to flatten the list
+# plot_locations_and_assignments(all_filtered, location_coords, customer_coords,output_dir)
+plot_locations_and_assignments_side_by_side(all_filtered, location_coords, customer_coords, output_dir, legends)
+
+
+# specific_size = 681
+# all_filtered = []
+# legends = ['poste','poste_cover_canton', 'poste_cover_commune', 'poste_canton_commune']
+# for data in [all_extracted_data_poste, all_extracted_data_poste_cover_canton, all_extracted_data_poste_cover_commune, all_extracted_data_multiechelle_poste]:
+#     filtered_data = filter_by_p_locations_size(data, specific_size)  # Corrected here
+#     all_filtered.extend(filtered_data)  # Changed to extend to flatten the list
+# # plot_locations_and_assignments(all_filtered, location_coords, customer_coords,output_dir)
+# plot_locations_and_assignments_side_by_side(all_filtered, location_coords, customer_coords, output_dir, legends)
+
+
+# Filter data by specific value of p_locations_size
+# filtered_data = filter_by_p_locations_size([all_extracted_data_mat], specific_size)
+# plot_locations_and_assignments(filtered_data, location_coords, customer_coords,output_dir)
+
+
