@@ -118,6 +118,9 @@ def process_files(directory_data, directory_sols_method, directory_sol_lit, base
     df_table = pd.DataFrame(columns=columns)
     
     for base_filename in base_filenames:
+        
+        print(f"Processing files for base filename {base_filename}:")
+        
         customer_data_file = os.path.join(directory_data, f'cust_weights_{base_filename}.txt')
         # assignment_files = glob.glob(os.path.join(directory_sols_method, f'test_lit_{base_filename}_p_*_RSSV_EXACT_CPMP_BIN.txt'))
         assignment_files = glob.glob(os.path.join(directory_sols_method, f'test_lit_{base_filename}_p_*.txt'))
@@ -243,13 +246,13 @@ def main():
     # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Assignments'
     
     # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Assignments'
-    directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/outputs/solutions/2024-06-24_LIT/Assignments'
-    base_filenames = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
+    # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/outputs/solutions/2024-06-24_LIT/Assignments'
+    # base_filenames = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
     
-    # directory_data = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/group2/'
-    # directory_sol_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
-    # directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/outputs/solutions/2024-06-24_LIT/Assignments'
-    # base_filenames = ['SJC1']
+    directory_data = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/group3/'
+    directory_sol_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
+    directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/outputs/solutions/2024-07-05_LIT/Assignments'
+    base_filenames = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
     
     process_files(directory_data, directory_sols_method, directory_sol_lit, base_filenames)
 

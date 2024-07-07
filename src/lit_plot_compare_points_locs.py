@@ -6,25 +6,24 @@ import numpy as np
 
 
 # Directory where .out files are located
-# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-14_save-cluster/'
-# directory_logs =  '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-13_save-cluster/'
-# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/'
-# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/'
-# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/'
-directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/'
+# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx05/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/test_h_bandwidth_smaller/'
+directory_logs = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/console/2024-07-05_console_LIT/'
 
-# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/2024-06-13_save-cluster/outputs/solutions/2024-06-12_LIT/Assignments/'
-# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Assignments/'
-# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart_weighted_subTBPMP/outputs/solutions/2024-06-20_LIT/Assignments/'
-# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Assignments'
-# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/outputs/solutions/2024-06-24_LIT/Assignments'
-directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/outputs/solutions/2024-06-25_LIT_hx04/Assignments'
+# EXT_LOG = '.out'
+EXT_LOG = '.log'
+
+# Directory where the assigments files are located
+# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/outputs/solutions/2024-06-25_LIT_hx04/Assignments'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx05/outputs/solutions/2024-06-25_LIT/Assignments'
+directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/outputs/solutions/2024-07-05_LIT/Assignments'
 
-directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
-loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/'
+
+# directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
+# loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/'
+directory_sols_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
+loc_coord = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/'
 # Regex patterns to match the required lines
 pattern_filtered_locations = re.compile(r'Filtered (\d+) locations: (.+)')
 # pattern_filtered_locations = re.compile(r'Final (\d+) locations: (.+)')
@@ -193,11 +192,16 @@ def plot_locations(filtered_locations, sol_values_lit, solution_method, loc_coor
     solution_method_only_x, solution_method_only_y = list(solution_method_only_x), list(solution_method_only_y)
 
     # Determine axis limits
-    delta = 0.05
-    x_min = min(all_x + filtered_x + unique_x + unique_only_x + solution_method_x) - delta * min(all_x + filtered_x + unique_x + unique_only_x + solution_method_x)
-    x_max = max(all_x + filtered_x + unique_x + unique_only_x + solution_method_x) + delta * max(all_x + filtered_x + unique_x + unique_only_x + solution_method_x)
-    y_min = min(all_y + filtered_y + unique_y + unique_only_y + solution_method_y) - delta * min(all_y + filtered_y + unique_y + unique_only_y + solution_method_y)
-    y_max = max(all_y + filtered_y + unique_y + unique_only_y + solution_method_y) + delta * max(all_y + filtered_y + unique_y + unique_only_y + solution_method_y)
+    delta = 0.01
+    # x_min = min(all_x + filtered_x + unique_x + unique_only_x + solution_method_x) - delta * min(all_x + filtered_x + unique_x + unique_only_x + solution_method_x)
+    # x_max = max(all_x + filtered_x + unique_x + unique_only_x + solution_method_x) + delta * max(all_x + filtered_x + unique_x + unique_only_x + solution_method_x)
+    # y_min = min(all_y + filtered_y + unique_y + unique_only_y + solution_method_y) - delta * min(all_y + filtered_y + unique_y + unique_only_y + solution_method_y)
+    # y_max = max(all_y + filtered_y + unique_y + unique_only_y + solution_method_y) + delta * max(all_y + filtered_y + unique_y + unique_only_y + solution_method_y)
+    # Calculate min and max for x and y with delta padding
+    x_min = min(all_x) - delta * (max(all_x) - min(all_x))
+    x_max = max(all_x) + delta * (max(all_x) - min(all_x))
+    y_min = min(all_y) - delta * (max(all_y) - min(all_y))
+    y_max = max(all_y) + delta * (max(all_y) - min(all_y))
 
 
     # Create subplots
@@ -291,12 +295,13 @@ def process_out_files(directory_logs):
 
     # create a filter to instances names to be processed
     # filter_instances = ['SJC1', 'SJC2', 'SJC3a', 'SJC3b', 'SJC4a', 'SJC4b']
-    filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
+    # filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
+    filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
     # filter_instances = ['pr2392_075']
 
 
     for filename in os.listdir(directory_logs):
-        if filename.endswith(".out"):
+        if filename.endswith(EXT_LOG):
             file_path = os.path.join(directory_logs, filename)
             filtered_locations, instance = extract_information(file_path)
             
