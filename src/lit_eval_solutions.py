@@ -241,16 +241,14 @@ def process_files(directory_data, directory_sols_method, directory_sol_lit, base
 
 
 def main():
-    directory_data = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/group5/'
+    directory_data = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/group3/'
     directory_sol_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
-    # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-24_save_cluster/Literature_test_2/outputs/solutions/2024-06-24_LIT/Assignments'
-    
+    # directory_data = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/group3/'
+    # directory_sol_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
+
     # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Assignments'
-    # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/Literature_test_limit_distance/outputs/solutions/2024-06-24_LIT/Assignments'
     # base_filenames = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
     
-    directory_data = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/group3/'
-    directory_sol_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
     directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/outputs/solutions/2024-07-05_LIT/Assignments'
     base_filenames = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
     
