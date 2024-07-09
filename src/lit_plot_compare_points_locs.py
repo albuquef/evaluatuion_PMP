@@ -9,7 +9,10 @@ import numpy as np
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx05/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-25_save_cluster/test_h_bandwidth_smaller/'
-directory_logs = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/console/2024-07-05_console_LIT/'
+
+# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx05/console/2024-07-08_console_LIT_hx05/'
+# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit/console/2024-07-08_console_LIT_hx1-5/'
+directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx025_first/console/2024-07-09_console_LIT_hx025/'
 
 # EXT_LOG = '.out'
 EXT_LOG = '.log'
@@ -17,13 +20,13 @@ EXT_LOG = '.log'
 # Directory where the assigments files are located
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/outputs/solutions/2024-06-25_LIT_hx04/Assignments'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx05/outputs/solutions/2024-06-25_LIT/Assignments'
-directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/outputs/solutions/2024-07-05_LIT/Assignments'
+directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx05/outputs/solutions/2024-07-08_LIT_hx05/Assignments/'
 
 
-# directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
-# loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/'
-directory_sols_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
-loc_coord = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/'
+directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
+loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/'
+# directory_sols_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
+# loc_coord = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/'
 # Regex patterns to match the required lines
 pattern_filtered_locations = re.compile(r'Filtered (\d+) locations: (.+)')
 # pattern_filtered_locations = re.compile(r'Final (\d+) locations: (.+)')

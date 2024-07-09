@@ -1,68 +1,15 @@
-# import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import time
 
+# Function to print even numbers for 10 seconds
+def print_even_numbers_for_10_seconds():
+    start_time = time.time()
+    n = 2  # Starting with the first even number
 
-def calcule_theoreme_pythagore(a, b):
-    c = np.sqrt(a**2 + b**2)
-    return c
-
-# # theoreme de pythagore
-# a = 3
-# b = 4
-# c = calcule_theoreme_pythagore(a, b)
-# print("Avec a = 3 et b = 4")
-# print("Le côté c du triangle rectangle est de : ", c)
-
-# # plot le triangle rectangle
-# plt.plot([0, 0, a, 0], [0, b, 0, 0])
-# plt.title("Triangle rectangle")
-# plt.xlabel("x")
-# plt.ylabel("y")
-# plt.grid()
-# plt.axis('equal')
-# plt.show()  
-
-# exit()
-
-# # plot an example of thereom de tales
-# a = 3
-# b = 4
-# c = 5
-# d = 6
-# plt.plot([0, 0, a, 0], [0, b, 0, 0])
-# plt.plot([0, 0, c, 0], [0, d, 0, 0])
-
-# # show the plot
-# plt.title("Theoreme de Tales")
-# plt.xlabel("x")
-# plt.ylabel("y")
-# plt.grid()
-# plt.axis('equal')
-# plt.show()
-
-
-
-# # theoreme de tales
-a = 3
-b = 4
-c = 5
-d = 6
-e = (a * d) / b
-# print("Avec a = 3, b = 4, c = 5 et d = 6")
-# print("Le côté e du triangle est de : ", e)
-
-# plot les geometries
-
-# plot example of geometry
-plt.plot([0, 0, a, 0], [0, b, 0, 0])
-plt.plot([0, 0, c, 0], [0, d, 0, 0])
-plt.plot([0, 0, a, 0], [0, d, 0, 0])
-plt.plot([0, 0, c, 0], [0, b, 0, 0])
-plt.plot([0, 0, a, 0], [0, e, 0, 0])
-plt.plot([0, 0, c, 0], [0, e, 0, 0])
-plt.show()
-
-
-# # show the plot
-# plt.show()  
+    while time.time() - start_time < 0.5:
+        # print(n)
+        n += 2  # Move to the next even number
+        # time.sleep(0.1)  # Sleep for a short duration to slow down the printing
+    print(n)
+# Run the function
+print_even_numbers_for_10_seconds()
+578800
