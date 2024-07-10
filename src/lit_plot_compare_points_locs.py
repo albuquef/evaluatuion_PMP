@@ -14,13 +14,18 @@ import numpy as np
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit/console/2024-07-08_console_LIT_hx1-5/'
 directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx025_first/console/2024-07-09_console_LIT_hx025/'
 
+
+directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/console/2024-07-10_console_LIT/'
+
 # EXT_LOG = '.out'
 EXT_LOG = '.log'
 
 # Directory where the assigments files are located
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/outputs/solutions/2024-06-25_LIT_hx04/Assignments'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx05/outputs/solutions/2024-06-25_LIT/Assignments'
-directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx05/outputs/solutions/2024-07-08_LIT_hx05/Assignments/'
+# directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx05/outputs/solutions/2024-07-08_LIT_hx05/Assignments/'
+
+directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/outputs/solutions/2024-07-10_LIT/Assignments/'
 
 
 directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
@@ -31,6 +36,8 @@ loc_coord = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Li
 pattern_filtered_locations = re.compile(r'Filtered (\d+) locations: (.+)')
 # pattern_filtered_locations = re.compile(r'Final (\d+) locations: (.+)')
 pattern_instance = re.compile(r'service: (.+)')
+pattern_postopt_selected = re.compile(r'Post-Optimization Selected (\d+) Locations: (.+)')
+
 
 def map_group(instance):
     if instance in ['SJC1', 'SJC2', 'SJC3a', 'SJC3b', 'SJC4a', 'SJC4b']:
@@ -50,7 +57,8 @@ def map_group(instance):
 def extract_information(file_path):
     filtered_locations = None
     instance = None
-    
+    post_selected_locations = None
+
     with open(file_path, 'r') as f:
         for line in f:
             # Match filtered locations line
@@ -60,17 +68,28 @@ def extract_information(file_path):
                 num_locations = int(match_filtered.group(1))
                 filtered_locations = match_filtered.group(2).strip().split()
                 filtered_locations = list(map(int, filtered_locations))  # Convert strings to integers
+                print(f'Filtered Locations: {filtered_locations}')
             
             # Match instance line
             match_instance = pattern_instance.match(line)
             if match_instance:
                 instance = match_instance.group(1).strip()
-                
-            # If both are found, no need to continue
-            if filtered_locations is not None and instance is not None:
+                print(f'Instance: {instance}')
+            
+            # Match post-optimization selected locations line
+            match_postopt = pattern_postopt_selected.match(line)
+            if match_postopt:
+                # Extract the number and the locations
+                num_postopt_locations = int(match_postopt.group(1))
+                post_selected_locations = match_postopt.group(2).strip().split()
+                post_selected_locations = list(map(int, post_selected_locations))  # Convert strings to integers
+                print(f'Post-Optimization Selected Locations: {post_selected_locations}')
+            
+            # If all are found, no need to continue
+            if filtered_locations is not None and instance is not None and post_selected_locations is not None:
                 break
     
-    return filtered_locations, instance
+    return filtered_locations, post_selected_locations, instance
 
 def find_instance_file(directory, instance):
     # Patterns for finding the instance file
@@ -103,8 +122,13 @@ def extract_p_locs_literature(file_path_solutions_lit):
     return sol_values
 
 def extract_solution_method(file_path_solutions_method, instance):
+
+    print(f'instance: {instance}')
+    print(f'file_path_solutions_method: {file_path_solutions_method}')
     # Extract p_value from the instance string
-    p_value = int(instance.split('_')[1])
+
+    # p_value = int(instance.split('_')[1])
+    p_value = 30
 
     # Define the method and file path
     METHOD = 'RSSV_EXACT_CPMP_BIN'
@@ -294,19 +318,126 @@ def plot_locations(filtered_locations, sol_values_lit, solution_method, loc_coor
     plt.savefig(f'./outputs/comparative_points_locs/{instance}_locations_plot.png')
     plt.show()
 
+
+def plot_postotimization(filtered_locations, sol_values_lit, percentage_equal, loc_coord_instance, instance, solution_method):
+        # Read coordinates file
+    coords = {}
+    cust_weights = {}
+    with open(loc_coord_instance, 'r') as f:
+        next(f)  # Skip the header line
+        for line in f:
+            values = line.strip().split()
+            try:
+                loc_id = int(values[0])
+                cust_weights[loc_id] = float(values[1])
+                coords[loc_id] = (float(values[2]), float(values[3]))  # Coord_x, Coord_y
+            except ValueError:
+                pass  # Skip invalid lines
+    
+    # Prepare data for plotting
+    all_coords = list(coords.values())
+    filtered_coords = [coords[loc] for loc in filtered_locations if loc in coords]
+    solution_lit_coords = [coords[loc] for loc in sol_values_lit if loc in coords]
+    solution_lit_only_coords = [coords[loc] for loc in sol_values_lit if loc not in filtered_locations and loc in coords]
+    solution_method_coords = [coords[loc] for loc in solution_method if loc in coords]
+    solution_method_only_coords = [coords[loc] for loc in solution_method if loc not in sol_values_lit and loc in coords]
+
+    all_x, all_y = zip(*all_coords) if all_coords else ([], [])
+    filtered_x, filtered_y = zip(*filtered_coords) if filtered_coords else ([], [])
+    unique_x, unique_y = zip(*solution_lit_coords) if solution_lit_coords else ([], [])
+    unique_only_x, unique_only_y = zip(*solution_lit_only_coords) if solution_lit_only_coords else ([], [])
+    solution_method_x, solution_method_y = zip(*solution_method_coords) if solution_method_coords else ([], [])
+    solution_method_only_x, solution_method_only_y = zip(*solution_method_only_coords) if solution_method_only_coords else ([], [])
+
+    # Convert tuples to lists for concatenation
+    all_x, all_y = list(all_x), list(all_y)
+    filtered_x, filtered_y = list(filtered_x), list(filtered_y)
+    unique_x, unique_y = list(unique_x), list(unique_y)
+    unique_only_x, unique_only_y = list(unique_only_x), list(unique_only_y)
+    solution_method_x, solution_method_y = list(solution_method_x), list(solution_method_y)
+    solution_method_only_x, solution_method_only_y = list(solution_method_only_x), list(solution_method_only_y)
+
+    # Determine axis limits
+    delta = 0.01
+    # x_min = min(all_x + filtered_x + unique_x + unique_only_x + solution_method_x) - delta * min(all_x + filtered_x + unique_x + unique_only_x + solution_method_x)
+    # x_max = max(all_x + filtered_x + unique_x + unique_only_x + solution_method_x) + delta * max(all_x + filtered_x + unique_x + unique_only_x + solution_method_x)
+    # y_min = min(all_y + filtered_y + unique_y + unique_only_y + solution_method_y) - delta * min(all_y + filtered_y + unique_y + unique_only_y + solution_method_y)
+    # y_max = max(all_y + filtered_y + unique_y + unique_only_y + solution_method_y) + delta * max(all_y + filtered_y + unique_y + unique_only_y + solution_method_y)
+    # Calculate min and max for x and y with delta padding
+    x_min = min(all_x) - delta * (max(all_x) - min(all_x))
+    x_max = max(all_x) + delta * (max(all_x) - min(all_x))
+    y_min = min(all_y) - delta * (max(all_y) - min(all_y))
+    y_max = max(all_y) + delta * (max(all_y) - min(all_y))
+
+
+    # Create subplots
+    fig, axs = plt.subplots(1, 4, figsize=(12, 7))
+
+    # Plot all locations
+    axs[0].scatter(all_x, all_y, c='gray', alpha=0.6, label=f'{instance} - All Locations')
+    axs[0].scatter(solution_method_x, solution_method_y, c='black', alpha=0.6, label=f'{instance} -Solution Method')
+    axs[0].set_title(f'All Locations ({len(all_coords)})')
+    axs[0].set_xlabel('Coord_x')
+    axs[0].set_ylabel('Coord_y')
+    axs[0].legend()
+    axs[0].set_xlim(x_min, x_max)
+    axs[0].set_ylim(y_min, y_max)
+
+
+    # Plot solution method locations
+    axs[1].scatter(solution_method_x, solution_method_y, c='black', alpha=0.6, label=f'{instance} - Intersection with Sol Lit')
+    axs[1].scatter(solution_method_only_x, solution_method_only_y, c='orange', alpha=0.6, label=f'{instance} - Solution Method Only')
+    axs[1].set_title(f'Solution Method Locations ({len(solution_method_coords)}) | Instersection: {len(set(solution_method) & set(sol_values_lit))}')
+    axs[1].set_xlabel('Coord_x')
+    axs[1].set_ylabel('Coord_y')
+    axs[1].legend()
+    axs[1].set_xlim(x_min, x_max)
+    axs[1].set_ylim(y_min, y_max)
+
+    # Plot filtered locations
+    axs[2].scatter(filtered_x, filtered_y, c='blue', alpha=0.6, label=f'{instance} - Selected Neighb Locations')
+    axs[2].scatter(solution_method_x, solution_method_y, c='black', alpha=0.6, label=f'{instance} -Solution Method')
+    axs[2].set_title(f'Selected PostOpt Locations ({len(filtered_coords)})')
+    axs[2].set_xlabel('Coord_x')
+    axs[2].set_ylabel('Coord_y')
+    axs[2].legend()
+    axs[2].set_xlim(x_min, x_max)
+    axs[2].set_ylim(y_min, y_max)
+
+
+    # Plot unique locations
+    axs[3].scatter(unique_x, unique_y, c='green', alpha=0.6, label=f'{instance} - Solution')
+    axs[3].scatter(unique_only_x, unique_only_y, c='red', alpha=0.6, label=f'{instance} - Solution Only')
+    axs[3].set_title(f'Solution Literature ({len(solution_lit_coords)}) - Hit Rate: {percentage_equal:.2f}%')
+    axs[3].set_xlabel('Coord_x')
+    axs[3].set_ylabel('Coord_y')
+    axs[3].legend()
+    axs[3].set_xlim(x_min, x_max)
+    axs[3].set_ylim(y_min, y_max)
+
+
+
+
+    # Adjust layout to fit the new subplot
+    plt.tight_layout()
+    plt.savefig(f'./outputs/comparative_points_locs/{instance}_postopt_locations_plot.png')
+    plt.show()
+
 def process_out_files(directory_logs):
 
     # create a filter to instances names to be processed
     # filter_instances = ['SJC1', 'SJC2', 'SJC3a', 'SJC3b', 'SJC4a', 'SJC4b']
+    filter_instances = ['SJC4a']
     # filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
-    filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
+    # filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
     # filter_instances = ['pr2392_075']
 
 
     for filename in os.listdir(directory_logs):
         if filename.endswith(EXT_LOG):
             file_path = os.path.join(directory_logs, filename)
-            filtered_locations, instance = extract_information(file_path)
+            # filtered_locations, instance = extract_information(file_path)
+            filtered_locations, post_selected_locations, instance = extract_information(file_path)
             
 
 
@@ -350,10 +481,24 @@ def process_out_files(directory_logs):
                     # Plot the locations
                     plot_locations(filtered_locations, p_locs_literature, p_locs_method, loc_coord_instance, instance, percentage_equal)
 
+
+                    print("--------------------------------")
+                    print(f"Post-Optimization Selected Locations: {len(post_selected_locations)}")
+                    print(f"instance: {instance}")  
+                    print(post_selected_locations)
+
+                    percentage_equal = calculate_equal_percentage(post_selected_locations, p_locs_literature)
+                    print(f"Percentage of equal values (post-optimization): {percentage_equal:.2f}%")
+
+                    plot_postotimization(post_selected_locations, p_locs_literature, percentage_equal, loc_coord_instance, instance, p_locs_method)
+
                 else:
                     print(f"No instance file found for instance: {instance}")
                 
                 print("--------------------------------")
+
+
+
 
 # Example usage
 process_out_files(directory_logs)
