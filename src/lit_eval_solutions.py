@@ -249,9 +249,13 @@ def main():
     # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/savecluster_Literature/24-06-20_save_cluster_128G_without_mipstart/outputs/solutions/2024-06-20_LIT/Assignments'
     # base_filenames = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
     
-    directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/outputs/solutions/2024-07-05_LIT/Assignments'
+    # directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/outputs/solutions/2024-07-05_LIT/Assignments'
+    directory_sols_method = ''
     base_filenames = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
     
+    # base_filenames = ['SJC1', 'SJC2', 'SJC3', 'SJC4a', 'SJC4b']
+    # base_filenames = ['SJC1', 'SJC2', 'SJC3', 'SJC4a', 'SJC4b']
+
     process_files(directory_data, directory_sols_method, directory_sol_lit, base_filenames)
 
 if __name__ == "__main__":
