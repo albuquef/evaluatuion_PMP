@@ -35,7 +35,7 @@ def plot_results(results_list, labels, instance_column='instance'):
     plt.ylabel('Solution')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('./outputs/plot_results_pr2392.png')
+    plt.savefig('./outputs/plot_results.png')
     plt.show()
 
 def main():
@@ -50,8 +50,8 @@ def main():
     # filter_instances = ['rl1304_010', 'rl1304_050', 'rl1304_100', 'rl1304_200', 'rl1304_300']
     # filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
     # filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
-    filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
-    # filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
+    # filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
+    filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
 
 
 
@@ -67,8 +67,8 @@ def main():
     # results_rssv_4 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx04/outputs/solutions/2024-06-25_LIT_hx04/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
 
     results_rssv = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-15_save_cluster/test_code/outputs/solutions/2024-07-14_LIT/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
-    results_rssv_2 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-15_save_cluster/test_code/outputs/solutions/2024-07-14_LIT/Results_cplex/results_all_cplex_postopt.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
-    results_rssv_3 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-15_save_cluster/test_code_2/outputs/solutions/2024-07-14_LIT/Results_cplex/results_all_cplex_post_opt_5neighb.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
+    results_rssv_2 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-16_save_cluster/test/outputs/solutions/2024-07-15_LIT_bestbound/Results_cplex/results_all_cplex_postopt.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
+    results_rssv_3 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-16_save_cluster/test/outputs/solutions/2024-07-15_LIT_bestbound/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
     # results_rssv_4 = load_and_filter_data('/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx010_first/outputs/solutions/2024-07-09_LIT_hx01/Results_cplex/results_all_cplex.csv', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
     
     # results_rssv_4 = load_and_filter_data('', 'RSSV_EXACT_CPMP_BIN', instance_column='type_service')
@@ -103,19 +103,21 @@ def main():
     print(results_stefanello15[['instance', 'solution']])
     print("\nResults CPLEX:")
     print(results_cplex[['instance', 'solution']])
-    print("\nResults RSSV hx0.5:")    
-    print(results_rssv[['instance', 'solution']])
-    print("\nResults RSSV + postopt 10 neighb:")
-    print(results_rssv_2[['instance', 'solution']])
-    print("\nResults RSSV + postopt 5 neighb:")
+    # print("\nResults RSSV:")    
+    # print(results_rssv[['instance', 'solution']])
+    print("\nResults RSSV:")    
     print(results_rssv_3[['instance', 'solution']])
+    print("\nResults RSSV + postopt:")
+    print(results_rssv_2[['instance', 'solution']])
+    # print("\nResults RSSV + postopt 5 neighb:")
+    # print(results_rssv_3[['instance', 'solution']])
     # print("\nResults RSSV_hx0.1:")
     # print(results_rssv_4[['instance', 'solution']])
 
     # plot_results([results_mario21, results_stefanello15, results_cplex, results_rssv], 
     #              ['Mario21', 'Stefanello15', 'CPLEX', 'RSSV'], instance_column='instance')
-    plot_results([results_mario21, results_stef_mario21, results_stefanello15, results_cplex, results_rssv, results_rssv_2, results_rssv_3], 
-                 ['Mario21', 'Stef_mario21', 'Stefanello15', 'CPLEX', 'RSSV', 'RSSV_neighb_10', 'RSSV_neighb_5'], instance_column='instance')
+    plot_results([results_mario21, results_stef_mario21, results_stefanello15, results_cplex, results_rssv_3, results_rssv_2], 
+                 ['Mario21', 'Stef_mario21', 'Stefanello15', 'CPLEX', 'RSSV', 'RSSV_postopt'], instance_column='instance')
     # plot_results([results_mario21, results_stef_mario21, results_stefanello15, results_cplex, results_rssv, results_rssv_3], 
     #              ['Mario21', 'Stef_mario21', 'Stefanello15', 'CPLEX', 'RSSV_Hx0,5', 'RSSV_Hx0.25'], instance_column='instance')
     # plot_results([results_stefanello15, results_cplex, results_rssv, results_rssv_2, results_rssv_3, results_rssv_4], 
