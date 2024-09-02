@@ -12,10 +12,10 @@ import numpy as np
 
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx05/console/2024-07-08_console_LIT_hx05/'
 # directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit/console/2024-07-08_console_LIT_hx1-5/'
-directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx025_first/console/2024-07-09_console_LIT_hx025/'
+directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-22_save_cluster_2/large-PMP/console/2024-07-20_console_LIT_seed_200/'
 
 
-directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/console/2024-07-10_console_LIT/'
+# directory_logs = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/console/2024-07-10_console_LIT/'
 
 # EXT_LOG = '.out'
 EXT_LOG = '.log'
@@ -25,7 +25,7 @@ EXT_LOG = '.log'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-06-26_save_cluster/test_h_bandwidth_smaller/hx05/outputs/solutions/2024-06-25_LIT/Assignments'
 # directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-09_save_cluster/test_lit_hx05/outputs/solutions/2024-07-08_LIT_hx05/Assignments/'
 
-directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/outputs/solutions/2024-07-10_LIT/Assignments/'
+directory_sols_method = '/home/falbuquerque/Documents/projects/Project_PMP/saves/SaveCluster/24-07-22_save_cluster_2/large-PMP/outputs/solutions/2024-07-20_LIT_seed_200/Assignments'
 
 
 directory_sols_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
@@ -427,11 +427,11 @@ def process_out_files(directory_logs):
 
     # create a filter to instances names to be processed
     # filter_instances = ['SJC1', 'SJC2', 'SJC3a', 'SJC3b', 'SJC4a', 'SJC4b']
-    filter_instances = ['SJC4a']
+    # filter_instances = ['SJC4a']
     # filter_instances = ['pr2392_020', 'pr2392_075', 'pr2392_150', 'pr2392_300', 'pr2392_500']
     # filter_instances = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
     # filter_instances = ['pr2392_075']
-
+    filter_instances = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
 
     for filename in os.listdir(directory_logs):
         if filename.endswith(EXT_LOG):
@@ -482,15 +482,15 @@ def process_out_files(directory_logs):
                     plot_locations(filtered_locations, p_locs_literature, p_locs_method, loc_coord_instance, instance, percentage_equal)
 
 
-                    print("--------------------------------")
-                    print(f"Post-Optimization Selected Locations: {len(post_selected_locations)}")
-                    print(f"instance: {instance}")  
-                    print(post_selected_locations)
+                    # print("--------------------------------")
+                    # print(f"Post-Optimization Selected Locations: {len(post_selected_locations)}")
+                    # print(f"instance: {instance}")  
+                    # print(post_selected_locations)
 
-                    percentage_equal = calculate_equal_percentage(post_selected_locations, p_locs_literature)
-                    print(f"Percentage of equal values (post-optimization): {percentage_equal:.2f}%")
+                    # percentage_equal = calculate_equal_percentage(post_selected_locations, p_locs_literature)
+                    # print(f"Percentage of equal values (post-optimization): {percentage_equal:.2f}%")
 
-                    plot_postotimization(post_selected_locations, p_locs_literature, percentage_equal, loc_coord_instance, instance, p_locs_method)
+                    # plot_postotimization(post_selected_locations, p_locs_literature, percentage_equal, loc_coord_instance, instance, p_locs_method)
 
                 else:
                     print(f"No instance file found for instance: {instance}")

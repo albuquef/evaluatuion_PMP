@@ -241,7 +241,7 @@ def process_files(directory_data, directory_sols_method, directory_sol_lit, base
 
 
 def main():
-    directory_data = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/group3/'
+    directory_data = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/group5/'
     directory_sol_lit = '/home/falbuquerque/Documents/projects/Project_PMP/large-PMP/data/Literature/solutions_lit/'
     # directory_data = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/group3/'
     # directory_sol_lit = '/home/felipe/Documents/Projects/GeoAvigon/pmp_code/large-PMP/data/Literature/solutions_lit/'
@@ -252,6 +252,9 @@ def main():
     # directory_sols_method = '/home/felipe/Documents/Projects/GeoAvigon/save_cluster/24-07-07_save_cluster/test_lit/outputs/solutions/2024-07-05_LIT/Assignments'
     directory_sols_method = ''
     base_filenames = ['p3038_600', 'p3038_700', 'p3038_800', 'p3038_900', 'p3038_1000']
+    
+    base_filenames = ['fnl4461_0020', 'fnl4461_0100', 'fnl4461_0250', 'fnl4461_0500', 'fnl4461_1000']
+    
     
     # base_filenames = ['SJC1', 'SJC2', 'SJC3', 'SJC4a', 'SJC4b']
     # base_filenames = ['SJC1', 'SJC2', 'SJC3', 'SJC4a', 'SJC4b']

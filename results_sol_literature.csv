@@ -1,8 +1,8 @@
-base filename,p3038_1000
-Total Euclidean Distance,85854.05673505043
-Maximum Distance,95.4829827770373
+base filename,fnl4461_1000
+Total Euclidean Distance,145862.49230756584
+Maximum Distance,107.44766167767449
 Minimum Distance,0.0
-Minimum Distance Different from Zero,1.0
-Average Distance,28.260058174802715
-Standard Deviation of Distances,22.00279386370239
-Sum of Distances from Clusters,85853.77000000003
+Minimum Distance Different from Zero,10.0
+Average Distance,32.6972634628032
+Standard Deviation of Distances,21.774257951648817
+Sum of Distances from Clusters,145862.43000000017
