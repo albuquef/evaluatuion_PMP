@@ -49,7 +49,8 @@ def set_subareas_covered(sol_locations, subarea_mappings):
 # Main function
 def main():
     # Directory containing the solution files
-    SOL_DIR = '/home/falbuquerque/Documents/projects/GeoAvignon/tests_Cyrille/original_dataset/nocover/'
+    # SOL_DIR = '/home/falbuquerque/Documents/projects/GeoAvignon/tests_Cyrille/original_dataset/cover_commune/'
+    SOL_DIR = '/home/falbuquerque/Documents/projects/GeoAvignon/tests_Cyrille/shuffle_dataset/nocover/nocover/'
     # SOL_DIR = 'solutions/'
     
     # List all solution files in the directory
